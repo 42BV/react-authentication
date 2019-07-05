@@ -9,7 +9,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>mad-spring-connect by </title>
+    <title>@42.nl/authentication by </title>
   </head>
 
   <body>
@@ -17,8 +17,8 @@
       <div class="inner">
 
         <header>
-          <h1>mad-spring-connect</h1>
-          <h2>Connecting with a Spring REST APIs in a domain friendly manner</h2>
+          <h1>@42.nl/authentication</h1>
+          <h2>Authenticating with a Spring Security application and storing the currentUser.</h2>
         </header>
         <section id="downloads" class="clearfix">
           
@@ -30,253 +30,415 @@
         <section id="main_content">
           <h1 id="about">About</h1>
 
-<p><a href="https://travis-ci.org/42BV/jarb-final-form"><img src="https://travis-ci.org/42BV/jarb-final-form.svg?branch=master" alt="Build Status" /></a>
-<a href="https://codecov.io/gh/42BV/jarb-final-form"><img src="https://codecov.io/gh/42BV/jarb-final-form/branch/master/graph/badge.svg" alt="Codecov" /></a></p>
+<p><a href="https://travis-ci.org/42BV/react-authentication"><img src="https://travis-ci.org/42BV/react-authentication.svg?branch=master" alt="Build Status" /></a>
+<a href="https://codecov.io/gh/42BV/react-authentication"><img src="https://codecov.io/gh/42BV/react-authentication/branch/master/graph/badge.svg" alt="Codecov" /></a></p>
 
-<p><a href="http://www.jarbframework.org/">JaRB</a> JaRB aims to improve database 
-usage in Java enterprise applications. With JaRB you can get the
-validation rules from the database into Java. With this project
-you can get those rules into your <a href="https://github.com/final-form/react-final-form">react-final-form</a> powered
-forms as well.</p>
+<p>This is 42’s authentication module for React in combination with
+a specific Spring Security settings.</p>
 
-<h1 id="installation">Installation</h1>
+<p>It can do the following things:</p>
 
-<p><code class="highlighter-rouge">npm install jarb-final-form --save</code></p>
-
-<h1 id="preparation">Preparation</h1>
-
-<p>First in your Java project make sure jarb-final-form can read
-the constraints, via a GET request. This is easily done by 
-exposing the <code class="highlighter-rouge">BeanConstraintController</code> like so:</p>
-
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">package</span> <span class="n">nl</span><span class="o">.</span><span class="na">_42</span><span class="o">.</span><span class="na">seeder</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">nl._42.jarb.constraint.EnableDatabaseConstraints</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">nl._42.jarb.constraint.metadata.BeanConstraintController</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">nl._42.jarb.constraint.metadata.BeanConstraintService</span><span class="o">;</span>
-
-<span class="nd">@SpringBootApplication</span>
-<span class="nd">@EnableDatabaseConstraints</span><span class="o">(</span><span class="n">basePackageClasses</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="kd">extends</span> <span class="n">SpringBootServletInitializer</span> <span class="o">{</span>
-
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">SpringApplication</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="n">Application</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Bean</span>
-    <span class="kd">public</span> <span class="n">BeanConstraintController</span> <span class="nf">beanConstraintController</span><span class="o">(</span><span class="n">BeanConstraintService</span> <span class="n">beanConstraintService</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="k">new</span> <span class="nf">BeanConstraintController</span><span class="o">(</span><span class="n">beanConstraintService</span><span class="o">);</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-
-</code></pre>
-</div>
+<ol>
+  <li>Log the user in and out with your Spring application.</li>
+  <li>Saving the current user in a store</li>
+  <li>Send ‘fetch’ request with XSRF tokens and the cookies.</li>
+  <li>Make a route only available for logged in users.</li>
+  <li>Make a route available for specific users, based on properties
+of the current user.</li>
+  <li>Make the state of the store available as handy set of hooks.</li>
+</ol>
 
 <h1 id="getting-started">Getting started.</h1>
 
-<p>At the start of your project, in case you are using Create React
-App in the index.js, configure the constraints:</p>
+<p>First install the following dependencies:</p>
 
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">configureConstraint</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'jarb-final-form'</span><span class="p">;</span>
+<p><code class="highlighter-rouge">npm install @42.nl/authentication --save</code></p>
 
-<span class="nx">configureConstraint</span><span class="p">({</span>
-   <span class="c1">// The URL which will provide the constraints over a GET request.</span>
-  <span class="na">constraintsUrl</span><span class="p">:</span> <span class="s1">'/api/constraints'</span><span class="p">,</span>
+<p>Next you have to configure the authentication module:</p>
 
-  <span class="c1">// Whether or not the 'constraintsUrl' should be called with authentication.</span>
-  <span class="na">needsAuthentication</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">'react'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">render</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'react-dom'</span><span class="p">;</span>
+
+<span class="kr">import</span> <span class="p">{</span>
+  <span class="nx">configureAuthentication</span><span class="p">,</span>
+  <span class="nx">authFetch</span><span class="p">,</span>
+  <span class="nx">AuthenticationProvider</span>
+<span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kr">import</span> <span class="nx">App</span> <span class="nx">from</span> <span class="s1">'./App'</span><span class="p">;</span>
+
+<span class="nx">configureAuthentication</span><span class="p">({</span>
+  <span class="c1">// The URL of your Spring back-end where the user can login (POST) and logout(DELETE)</span>
+  <span class="na">authenticationUrl</span><span class="p">:</span> <span class="s1">'/api/authentication'</span><span class="p">,</span>
+
+  <span class="c1">// The URL of your Spring back-end where the current user can be requested via GET</span>
+  <span class="na">currentUserUrl</span><span class="p">:</span> <span class="s1">'/api/authentication/current'</span><span class="p">,</span>
+
+  <span class="c1">// The route (in the front-end) the user should be redirected to when not logged in.</span>
+  <span class="na">loginRoute</span><span class="p">:</span> <span class="s1">'/login'</span>
 <span class="p">});</span>
-</code></pre>
-</div>
+<span class="kr">const</span> <span class="nx">rootElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">'root'</span><span class="p">);</span>
 
-<p>The constraints module must be configured before the application
-is rendered.</p>
-
-<p>Finally you will have load the constraints from the back-end using
-the <code class="highlighter-rouge">loadConstraints</code> function. If in order for the constraints
-to be loaded you need to be logged in, you should load the constraints
-as soon as you know that you are logged in:</p>
-
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">loadConstraints</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'jarb-final-form'</span><span class="p">;</span>
-<span class="kr">import</span> <span class="p">{</span> <span class="nx">login</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'somewhere'</span><span class="p">;</span>
-
-<span class="kr">class</span> <span class="nx">Login</span> <span class="kr">extends</span> <span class="nx">Component</span> <span class="p">{</span>
-  <span class="nx">doLogin</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">login</span><span class="p">({</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span> <span class="p">})</span>
-      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">loadConstraints</span><span class="p">);</span> <span class="c1">// Load constraints ASAP</span>
-  <span class="p">}</span>
-
-  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// Render here which calls doLogin</span>
-  <span class="p">}</span>
+<span class="c1">// Register the AuthenticationProvider, not required when never </span>
+<span class="c1">// using the `AuthenticationContext`.</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">rootElement</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">render</span><span class="p">(</span>
+    <span class="o">&lt;</span><span class="nx">AuthenticationProvider</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="nx">App</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="sr">/AuthenticationProvider&gt;</span><span class="err">,
+</span>    <span class="nx">rootElement</span>
+  <span class="p">);</span>
 <span class="p">}</span>
 </code></pre>
 </div>
 
-<p>If you do not need a login before you can fetch the constraints
-simply fetch them using <code class="highlighter-rouge">loadConstraints</code> as soon as possible.</p>
+<p>The authentication module must be configured before the application
+is rendered.</p>
 
-<h1 id="usage">Usage</h1>
+<h1 id="how-to">How to</h1>
 
-<h2 id="using-jarbfield">Using JarbField</h2>
+<h2 id="writing-a-loginform">Writing a LoginForm.</h2>
 
-<p>If you read the documentation of the final-form libary you will know
-that you will need the <code class="highlighter-rouge">Field</code> Component to render form elements. This
-library simply extends <code class="highlighter-rouge">Field</code> by adding JaRB validation rules to it.</p>
+<p>In order to log the user in you must have a login form of some sorts.
+This library does not assume anything on how this login form should
+work or what it looks like.</p>
 
-<p>This abstraction is called <code class="highlighter-rouge">JarbField</code>. JarbField wrappes 
-final-form’s Field, and adds the auto validation from the 
-ConstraintsStore. In fact it is a very thin wrapper around
-Field.</p>
+<p>Here’s what a LoginForm should do:</p>
 
-<p>It only demands one extra property called ‘jarb’ which is used
-to to configure the Field. The ‘jarb’ object needs two keys:
-the ‘validator’ and the ‘label’.</p>
-
-<p>The ‘validator’ follows the following format: {Entity}.{Property}. 
-For example if the validator property is ‘SuperHero.name’ this means that
-the Field will apply the constraints for the ‘name’ property of
-the ‘SuperHero’ entity.</p>
-
-<p>The ‘label’ is used to inform you which field was wrong, when errors occur.
-You will receive the ‘label’ when an error occurs to create a nice
-error message.</p>
+<ol>
+  <li>Call ‘login’ when the user submits the login form, with the correct body.</li>
+  <li>Try to auto-login the user via <code class="highlighter-rouge">current</code> in the componentDidMount.</li>
+  <li>In the <code class="highlighter-rouge">render</code> Redirect the user when he is logged in.</li>
+</ol>
 
 <p>For example:</p>
 
-<pre><code class="language-jsx">&lt;JarbField 
-  name="Name" 
-  jarb={{ validator: 'SuperHero.name', label: "Name" }}
-  component="input" 
-  type="text"
-/&gt;
-</code></pre>
-
-<h2 id="displaying-erors">Displaying erors</h2>
-
-<p>Rendering the validation errors is completely up to you.</p>
-
-<p>The way it works is as follows, whenever an error occurs
-the <code class="highlighter-rouge">error</code> prop of the Field’s <code class="highlighter-rouge">meta</code> data will contain
-an an array of objects.</p>
-
-<p>For example this object could be included in that array:</p>
-
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
-  <span class="c1">// The type of error which occured</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_MINIMUM_LENGTH"</span><span class="p">,</span>
-  <span class="c1">// The label of the JarbField</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Description"</span><span class="p">,</span>
-  <span class="c1">// The value that the field possesed at the time of the error</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">''</span><span class="p">,</span>
-  <span class="c1">// The reason why the error occured.</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"minimumLength"</span><span class="err">:</span> <span class="mi">3</span> <span class="p">}</span>
-<span class="p">}</span>
-</code></pre>
-</div>
-
-<p>Now you could create an Error Component to render the errors:</p>
-
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">ValidationError</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'jarb-final-form'</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">Component</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'react'</span><span class="p">;</span>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">Component</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'react'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">Redirect</span><span class="p">,</span> <span class="nx">locationShape</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'react-router-dom'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">login</span><span class="p">,</span> <span class="nx">current</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42nl/authentication'</span><span class="p">;</span>
 
 <span class="kr">interface</span> <span class="nx">Props</span> <span class="p">{</span>
-  <span class="nl">meta</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nl">invalid</span><span class="p">:</span> <span class="kr">boolean</span><span class="p">,</span>
-    <span class="nx">error</span><span class="err">:</span> <span class="nx">ValidationError</span><span class="p">,</span>
-    <span class="nx">touched</span><span class="err">:</span> <span class="kr">boolean</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">props</span><span class="err">:</span> <span class="nx">Props</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kr">const</span> <span class="p">{</span> <span class="nx">invalid</span><span class="p">,</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">touched</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">props</span><span class="p">.</span><span class="nx">meta</span><span class="p">;</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="nx">invalid</span> <span class="o">&amp;&amp;</span> <span class="nx">touched</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="o">&lt;</span><span class="nx">span</span> <span class="nx">className</span><span class="o">=</span><span class="s2">"error"</span><span class="o">&gt;</span><span class="p">{</span> <span class="nx">errorMessage</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">}</span><span class="o">&lt;</span><span class="sr">/span&gt;</span><span class="err">;
-</span>    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
-  <span class="p">}</span>
+  <span class="nl">loggedIn</span><span class="p">:</span> <span class="kr">boolean</span><span class="p">,</span>
+  <span class="nx">location</span><span class="err">:</span> <span class="nx">locationShape</span>
 <span class="p">};</span>
 
-<span class="c1">// Render a nice message based on each ValidationType.</span>
-<span class="kd">function</span> <span class="nx">errorMessage</span><span class="p">(</span><span class="nx">error</span><span class="err">:</span> <span class="nx">ValidationError</span><span class="p">)</span><span class="err">:</span> <span class="nx">string</span> <span class="p">{</span>
-  <span class="k">switch</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="s1">'ERROR_REQUIRED'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">is</span> <span class="nx">required</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_MINIMUM_LENGTH'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">bigger</span> <span class="nx">than</span> <span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">minimumLength</span> <span class="p">}</span> <span class="nx">characters</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_MAXIMUM_LENGTH'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">smaller</span> <span class="nx">than</span> <span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">maximumLength</span> <span class="p">}</span> <span class="nx">characters</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_MIN_VALUE'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">more</span> <span class="nx">than</span> <span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">minValue</span> <span class="p">}</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_MAX_VALUE'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">must</span> <span class="nx">be</span> <span class="nx">less</span> <span class="nx">than</span> <span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">maxValue</span> <span class="p">}</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_NUMBER'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">is</span> <span class="nx">not</span> <span class="nx">a</span> <span class="nx">number</span> <span class="nx">matching</span> <span class="nx">pattern</span><span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">regex</span><span class="p">}</span><span class="err">`</span><span class="p">;</span>
-    <span class="k">case</span> <span class="s1">'ERROR_NUMBER_FRACTION'</span><span class="err">:</span>
-      <span class="k">return</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span> <span class="nx">error</span><span class="p">.</span><span class="nx">label</span> <span class="p">}</span> <span class="nx">is</span> <span class="nx">not</span> <span class="nx">a</span> <span class="nx">number</span> <span class="nx">machthing</span> <span class="nx">pattern</span><span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">error</span><span class="p">.</span><span class="nx">reasons</span><span class="p">.</span><span class="nx">regex</span><span class="p">}</span><span class="err">`</span><span class="p">;</span>
-    <span class="nl">default</span><span class="p">:</span>
-     <span class="k">return</span> <span class="s1">'UNKNOWN_ERROR'</span><span class="p">;</span>
+<span class="kr">interface</span> <span class="nx">State</span> <span class="p">{</span>
+  <span class="nl">username</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">password</span><span class="err">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">error</span><span class="err">:</span> <span class="kr">boolean</span><span class="p">,</span>
+  <span class="nx">autoLoginFailed</span><span class="err">:</span> <span class="kr">boolean</span>
+<span class="p">};</span>
+
+<span class="kr">export</span> <span class="kr">export</span> <span class="kr">class</span> <span class="nx">Login</span> <span class="kr">extends</span> <span class="nx">Component</span><span class="o">&lt;</span><span class="nx">Props</span><span class="p">,</span> <span class="nx">State</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">username</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span>
+    <span class="na">password</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span>
+    <span class="na">error</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="na">autoLoginFailed</span><span class="p">:</span> <span class="kc">false</span>
+  <span class="p">};</span>
+
+  <span class="c1">// Calling `current()` automatically logs the user in when the session is still valid</span>
+  <span class="nx">componentDidMount</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">current</span><span class="p">().</span><span class="k">catch</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="na">autoLoginFailed</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="nx">onSubmit</span><span class="p">(</span><span class="na">event</span><span class="p">:</span> <span class="nx">Event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+
+    <span class="kr">const</span> <span class="p">{</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="kc">false</span> <span class="p">});</span>
+
+    <span class="c1">// `login` expects a body to send to the server</span>
+    <span class="nx">login</span><span class="p">({</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span> <span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="nx">setUsername</span><span class="p">(</span><span class="na">username</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="nx">username</span> <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="nx">setPassword</span><span class="p">(</span><span class="na">password</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="nx">password</span> <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Be sure </span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">loggedIn</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="p">{</span> <span class="nx">from</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">state</span> <span class="o">||</span> <span class="p">{</span> <span class="na">from</span><span class="p">:</span> <span class="p">{</span> <span class="na">pathname</span><span class="p">:</span> <span class="s1">'/'</span> <span class="p">}</span> <span class="p">};</span>
+
+      <span class="k">return</span> <span class="o">&lt;</span><span class="nx">Redirect</span> <span class="nx">to</span><span class="o">=</span><span class="p">{</span> <span class="nx">from</span> <span class="p">}</span><span class="sr">/&gt;</span><span class="err">;
+</span>    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">autoLoginFailed</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kr">const</span> <span class="p">{</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span><span class="p">,</span> <span class="nx">error</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">;</span>
+
+    <span class="kr">const</span> <span class="nx">errorMessage</span> <span class="o">=</span> <span class="nx">error</span> <span class="p">?</span> <span class="s1">'Username and password are incorrect'</span> <span class="p">:</span> <span class="s1">''</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+      <span class="o">&lt;</span><span class="nx">form</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Please</span> <span class="nx">log</span> <span class="k">in</span><span class="o">&lt;</span><span class="sr">/h1</span><span class="err">&gt;
+</span>        <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="nx">label</span> <span class="nx">htmlFor</span><span class="o">=</span><span class="s2">"username"</span><span class="o">&gt;</span><span class="nx">Username</span><span class="o">&lt;</span><span class="sr">/label</span><span class="err">&gt;
+</span>          <span class="o">&lt;</span><span class="nx">input</span>
+            <span class="nx">id</span><span class="o">=</span><span class="s2">"username"</span>
+            <span class="nx">name</span><span class="o">=</span><span class="s2">"username"</span>
+            <span class="nx">type</span><span class="o">=</span><span class="s2">"text"</span>
+            <span class="nx">value</span><span class="o">=</span><span class="p">{</span> <span class="nx">username</span> <span class="p">}</span>
+            <span class="nx">onChange</span><span class="o">=</span><span class="p">{</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setUsername</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span> <span class="p">}</span>
+          <span class="sr">/</span><span class="err">&gt;
+</span>        <span class="o">&lt;</span><span class="sr">/p</span><span class="err">&gt;
+</span>
+        <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+          <span class="o">&lt;</span><span class="nx">label</span> <span class="nx">htmlFor</span><span class="o">=</span><span class="s2">"password"</span><span class="o">&gt;</span><span class="nx">Password</span><span class="o">&lt;</span><span class="sr">/label</span><span class="err">&gt;
+</span>          <span class="o">&lt;</span><span class="nx">input</span>
+            <span class="nx">id</span><span class="o">=</span><span class="s2">"password"</span>
+            <span class="nx">name</span><span class="o">=</span><span class="s2">"password"</span>
+            <span class="nx">type</span><span class="o">=</span><span class="s2">"password"</span>
+            <span class="nx">value</span><span class="o">=</span><span class="p">{</span> <span class="nx">password</span> <span class="p">}</span>
+            <span class="nx">onChange</span><span class="o">=</span><span class="p">{</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setPassword</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span> <span class="p">}</span>
+          <span class="sr">/</span><span class="err">&gt;
+</span>        <span class="o">&lt;</span><span class="sr">/p</span><span class="err">&gt;
+</span>
+        <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">{</span> <span class="nx">errorMessage</span> <span class="p">}</span><span class="o">&lt;</span><span class="sr">/p</span><span class="err">&gt;
+</span>
+        <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">type</span><span class="o">=</span><span class="s2">"sumbit"</span> <span class="nx">onClick</span><span class="o">=</span><span class="p">{</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">onSubmit</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">}</span><span class="o">&gt;</span><span class="nx">Log</span> <span class="k">in</span><span class="o">&lt;</span><span class="sr">/button</span><span class="err">&gt;
+</span>      <span class="o">&lt;</span><span class="sr">/form</span><span class="err">&gt;
+</span>    <span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </code></pre>
 </div>
 
-<p>Here are examples of all errors which can occur:</p>
+<h2 id="writing-a-logout">Writing a Logout</h2>
 
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_REQUIRED"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Name"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">''</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"required"</span><span class="err">:</span> <span class="s2">"required"</span> <span class="p">}</span>
+<p>In order to logout you must call the ‘logout’ function, and make
+sure you Redirect the user to the login form when the user is
+logged in.</p>
+
+<p>For example:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">'react'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">Redirect</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'react-router-dom'</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">logout</span><span class="p">,</span> <span class="nx">useIsLoggedIn</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">Logout</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">isLoggedIn</span> <span class="o">=</span> <span class="nx">useIsLoggedIn</span><span class="p">();</span>
+
+  <span class="nx">async</span> <span class="kd">function</span> <span class="nx">onLogout</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">await</span> <span class="nx">logout</span><span class="p">();</span>
+    <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">reload</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">isLoggedIn</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&lt;</span><span class="nx">Redirect</span> <span class="nx">to</span><span class="o">=</span><span class="s2">"/"</span> <span class="o">/&gt;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="o">&lt;</span><span class="nx">button</span><span class="o">&gt;</span>
+      <span class="nx">type</span><span class="o">=</span><span class="s2">"button"</span>
+      <span class="nx">onClick</span><span class="o">=</span><span class="p">{</span><span class="nx">onLogout</span><span class="p">}</span>
+    <span class="o">&gt;</span>
+      <span class="nx">Logout</span>
+    <span class="o">&lt;</span><span class="sr">/button</span><span class="err">&gt;
+</span>  <span class="p">);</span>
 <span class="p">}</span>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_MINIMUM_LENGTH"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Description"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">''</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"minimumLength"</span><span class="err">:</span> <span class="mi">3</span> <span class="p">}</span>
-<span class="p">}</span>
+</code></pre>
+</div>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_MAXIMUM_LENGTH"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Info"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">'aaaa'</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"maximumLength"</span><span class="err">:</span> <span class="mi">3</span> <span class="p">}</span>
-<span class="p">}</span>
+<h2 id="make-a-route-private">Make a Route private</h2>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_MIN_VALUE"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Age"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="mi">1</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"minValue"</span><span class="err">:</span> <span class="mi">15</span> <span class="p">}</span>
-<span class="p">}</span>
+<p>Some routes can only be accessible when the user is logged in.
+You can do this via the PrivateRoute for example:</p>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_MAX_VALUE"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Amount"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="mi">16</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"maxValue"</span><span class="err">:</span> <span class="mi">15</span> <span class="p">}</span>
-<span class="p">}</span>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">BrowserRouter</span> <span class="nx">history</span><span class="o">=</span><span class="p">{</span> <span class="nx">browserHistory</span> <span class="p">}</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">exact</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Dashboard</span> <span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/login"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Login</span> <span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">PrivateRoute</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/users"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Users</span> <span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/BrowserRouter</span><span class="err">&gt;
+</span></code></pre>
+</div>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ERROR_NUMBER"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Telephone"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">'noot'</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"regex"</span><span class="err">:</span> <span class="o">/^-</span><span class="p">?</span><span class="err">\</span><span class="nx">d</span><span class="o">+</span><span class="nx">$</span><span class="o">/</span> <span class="p">}</span>
-<span class="p">}</span>
+<p>PrivateRoute works exacly like Route, except that it does not
+support a <code class="highlighter-rouge">render</code> method. You must always provide a Component
+instead.</p>
 
-<span class="p">{</span>
-  <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ERROR_NUMBER_FRACTION"</span><span class="p">,</span>
-  <span class="s2">"label"</span><span class="err">:</span> <span class="s2">"Telephone"</span><span class="p">,</span>
-  <span class="s2">"value"</span><span class="err">:</span> <span class="s1">'noot'</span><span class="p">,</span>
-  <span class="s2">"reasons"</span><span class="err">:</span> <span class="p">{</span> <span class="s2">"regex"</span><span class="err">:</span> <span class="o">/^-</span><span class="p">?</span><span class="err">\</span><span class="nx">d</span><span class="o">+</span><span class="nx">$</span><span class="o">/</span><span class="p">,</span> <span class="s2">"fractionLength"</span><span class="p">:</span> <span class="mi">1</span> <span class="p">}</span>
+<p>When the user tries to go to a PrivateRoute he will be redirected
+to the Config’s route <code class="highlighter-rouge">loginRoute</code>.</p>
+
+<h2 id="add-authorization-to-a-route">Add authorization to a Route</h2>
+
+<p>Some routes can only be accessed by a type of user or a specific
+user. You can do this via the AuthorizedRoute.</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">BrowserRouter</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">exact</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Dashboard</span> <span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">Route</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/login"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Login</span> <span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">PrivateRoute</span> <span class="nx">path</span><span class="o">=</span><span class="s2">"/users"</span> <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Users</span> <span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">AuthorizedRoute</span> 
+      <span class="nx">path</span><span class="o">=</span><span class="s2">"/pictures"</span> 
+      <span class="nx">component</span><span class="o">=</span><span class="p">{</span> <span class="nx">Pictures</span> <span class="p">}</span>
+      <span class="nx">authorizer</span><span class="o">=</span><span class="p">{</span> <span class="p">(</span><span class="na">authenticationStore</span><span class="p">:</span> <span class="nx">AuthenticationStore</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">authenticationStore</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">role</span> <span class="o">===</span> <span class="s1">'ADMIN'</span><span class="p">;</span>
+      <span class="p">}}</span>
+    <span class="sr">/</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/div</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/BrowserRouter</span><span class="err">&gt;
+</span></code></pre>
+</div>
+
+<p>The authorizer function is only ran if the user is logged in.
+The authorizer is given the authenticationStore as the first
+parameter, and is expected to return a boolean.</p>
+
+<p>AuthorizedRoute works exacly like Route, except that it does not
+support a <code class="highlighter-rouge">render</code> method. You must always provide a Component
+instead.</p>
+
+<p>When the user tries to go to a AuthorizedRoute he will be redirected
+to the Config’s route <code class="highlighter-rouge">loginRoute</code>.</p>
+
+<h2 id="get-the-login-status">Get the login status</h2>
+
+<p>Lets say you have a component which needs to know whether the
+user is logged in, you can use the hook <code class="highlighter-rouge">useIsLoggedIn</code> for this:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">useIsLoggedIn</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">User</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">isLoggedIn</span> <span class="o">=</span> <span class="nx">useIsLoggedIn</span><span class="p">();</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">isLoggedIn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">You</span> <span class="nx">are</span> <span class="nx">logged</span> <span class="k">in</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span><span class="err">;
+</span>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Please</span> <span class="nx">log</span> <span class="k">in</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span><span class="err">;
+</span>  <span class="p">}</span>
 <span class="p">}</span>
 </code></pre>
 </div>
+
+<h2 id="get-the-current-user-object">Get the current user object</h2>
+
+<p>Lets say you have a component which must render some information
+about the current user, you can use the hook <code class="highlighter-rouge">useCurrentUser</code> for this:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">useCurrentUser</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">User</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">currentUser</span> <span class="o">=</span> <span class="nx">useCurrentUser</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span><span class="p">();</span>
+
+  <span class="k">return</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Hi</span> <span class="p">{</span> <span class="nx">currentUser</span><span class="p">.</span><span class="nx">name</span> <span class="p">}</span> <span class="o">&lt;</span><span class="sr">/h1&gt;</span><span class="err">;
+</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Warning: you should only use <code class="highlighter-rouge">useCurrentUser</code> when you know that
+the user is currently logged in. Otherwise you will get an error.</p>
+
+<p>The idea behind this is that you do not want to keep checking optionals
+/ maybe types throughout your application, when you use the information
+on pages which are behind a login.</p>
+
+<p>If you want to access the currentUser in a place where the login
+is unknown use <code class="highlighter-rouge">useAuthentication</code> instead.</p>
+
+<h2 id="get-the-authentication-state">Get the authentication state</h2>
+
+<p>Finally there are two ways to access the entire login state.</p>
+
+<h3 id="via-useauthentication">Via useAuthentication</h3>
+
+<p>This variant uses a hook called <code class="highlighter-rouge">useAuthentication</code> which is preferred:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">useAuthentication</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">User</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">authentication</span> <span class="o">=</span> <span class="nx">useAuthentication</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span><span class="p">();</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">authentication</span><span class="p">.</span><span class="nx">isLoggedIn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Hi</span> <span class="p">{</span> <span class="nx">currentUser</span><span class="p">.</span><span class="nx">name</span> <span class="p">}</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span><span class="err">;
+</span>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Please</span> <span class="nx">log</span> <span class="k">in</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span><span class="err">;
+</span>  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h3 id="via-authenticationcontext">Via AuthenticationContext</h3>
+
+<p>This variant uses the <code class="highlighter-rouge">AuthenticationContext</code>, which you should only
+use when using a class Component. Try using <code class="highlighter-rouge">useAuthentication</code> if
+it is possible instead.</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="p">{</span> <span class="nx">AuthenticationContext</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span>
+      <span class="o">&lt;</span><span class="nx">AuthenticationContext</span><span class="p">.</span><span class="nx">Consumer</span><span class="o">&gt;</span>
+        <span class="p">{(</span><span class="na">authentication</span><span class="p">:</span> <span class="nx">AuthenticationState</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span> <span class="o">|</span> <span class="kc">null</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">authentication</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="nx">Unknown</span><span class="o">&lt;</span><span class="sr">/p&gt;</span><span class="err">;
+</span>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="kr">const</span> <span class="nx">text</span> <span class="o">=</span> <span class="nx">authentication</span><span class="p">.</span><span class="nx">isLoggedIn</span>
+              <span class="p">?</span> <span class="s1">'Logged in'</span>
+              <span class="p">:</span> <span class="s1">'Please log in'</span><span class="p">;</span>
+            <span class="k">return</span> <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">text</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/p&gt;</span><span class="err">;
+</span>          <span class="p">}</span>
+        <span class="p">}}</span>
+      <span class="o">&lt;</span><span class="sr">/AuthenticationContext.Consumer</span><span class="err">&gt;
+</span>    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Note: you must have setup the <code class="highlighter-rouge">AuthenticationProvider</code> before this
+works. See “Getting started”.</p>
+
+<h2 id="send-a-request-with-the-xsrf-token-as-the-current-user">Send a request with the XSRF token as the current user.</h2>
+
+<p>To perform request with the XSRF token and with the cookies from
+the current user. You can use the ‘authFetch’ utility from this
+library:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code>
+<span class="kr">import</span> <span class="s1">'authFetch'</span> <span class="nx">from</span> <span class="s1">'@42.nl/authentication'</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">getUser</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">authFetch</span><span class="p">(</span><span class="s1">'/user/1'</span><span class="p">).</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">authFetch</code> is a thin wrapper around <code class="highlighter-rouge">fetch</code>, it only adds the
+credentials and XSRF token, so it has the exact same arguments
+as <code class="highlighter-rouge">fetch</code>.</p>
 
         </section>
 

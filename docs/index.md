@@ -29,6 +29,17 @@ First install the following dependencies:
 Next you have to configure the authentication module:
 
 ```js
+import React from 'react';
+import { render } from 'react-dom';
+
+import {
+  configureAuthentication,
+  authFetch,
+  AuthenticationProvider
+} from '@42.nl/authentication';
+
+import App from './App';
+
 configureAuthentication({
   // The URL of your Spring back-end where the user can login (POST) and logout(DELETE)
   authenticationUrl: '/api/authentication',
@@ -39,6 +50,18 @@ configureAuthentication({
   // The route (in the front-end) the user should be redirected to when not logged in.
   loginRoute: '/login'
 });
+const rootElement = document.getElementById('root');
+
+// Register the AuthenticationProvider, not required when never 
+// using the `AuthenticationContext`.
+if (rootElement) {
+  render(
+    <AuthenticationProvider>
+      <App/>
+    </AuthenticationProvider>,
+    rootElement
+  );
+}
 ```
 
 The authentication module must be configured before the application
@@ -100,7 +123,7 @@ export export class Login extends Component<Props, State> {
     this.setState({ error: false });
 
     // `login` expects a body to send to the server
-    login({  username, password }).catch((error) => {
+    login({ username, password }).catch((error) => {
       this.setState({ error: true });
     });
   }
@@ -172,39 +195,32 @@ logged in.
 For example:
 
 ```js
-import React, { Component } from 'react';
-
-import { connect } from 'react-redux';
+import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { Store } from '.redux/root-reducer';
-import { logout } from '@42nl/authentication';
+import { logout, useIsLoggedIn } from '@42.nl/authentication';
 
-interface Props {
-  isLoggedIn: boolean
-};
+export default function Logout() {
+  const isLoggedIn = useIsLoggedIn();
 
-export class Logout extends Component<Props, void> {
-
-  onLogoutClick() {
-    logout();
+  async function onLogout() {
+    await logout();
+    window.location.reload();
   }
 
-  render() {
-    if (this.props.isLoggedIn === false) {
-      return <Redirect to="/"/>;
-    }
-
-    return (
-      <a onClick={ () => this.onLogoutClick() }>Uitloggen</a>
-    );
+  if (isLoggedIn === false) {
+    return <Redirect to="/" />;
   }
+
+  return (
+    <button>
+      type="button"
+      onClick={onLogout}
+    >
+      Logout
+    </button>
+  );
 }
 
-export default connect((store: Store) => {
-  return {
-    isLoggedIn: store.authentication.isLoggedIn
-  };
-})(Logout);
 ```
 
 ## Make a Route private
@@ -262,36 +278,115 @@ instead.
 When the user tries to go to a AuthorizedRoute he will be redirected
 to the Config's route `loginRoute`.
 
-## Get the current user's info / login status
+## Get the login status
 
-Lets say you have a component which must render the current user's
-name, you will then need the current user from the Redux store.
-
-We can use react-redux's connect to achieve this.
-
-For example:
+Lets say you have a component which needs to know whether the
+user is logged in, you can use the hook `useIsLoggedIn` for this:
 
 ```js
+import { useIsLoggedIn } from '@42.nl/authentication';
 
-import { connect } from 'react-redux';
-import { Store } from '.redux/root-reducer';
+function User() {
+  const isLoggedIn = useIsLoggedIn();
 
-function User(props) {
   if (isLoggedIn) {
-    return <h1>Hi {{ props.currentUser.name }}</h1>
+    return <h1>You are logged in</h1>;
   } else {
-    return <h1>Please log in</h1>
+    return <h1>Please log in</h1>;
   }
 }
-
-export default connect((store: Store) => {
-  return {
-    isLoggedIn: store.authentication.isLoggedIn,
-    currentUser: store.authentication.currentUser
-  };
-})(User);
-
 ```
+
+## Get the current user object
+
+Lets say you have a component which must render some information
+about the current user, you can use the hook `useCurrentUser` for this:
+
+```js
+import { useCurrentUser } from '@42.nl/authentication';
+
+interface User {
+  name: string;
+}
+
+function User() {
+  const currentUser = useCurrentUser<User>();
+
+  return <h1>Hi {% raw %}{ currentUser.name } {% endraw %}</h1>;
+}
+```
+
+Warning: you should only use `useCurrentUser` when you know that
+the user is currently logged in. Otherwise you will get an error.
+
+The idea behind this is that you do not want to keep checking optionals
+/ maybe types throughout your application, when you use the information
+on pages which are behind a login.
+
+If you want to access the currentUser in a place where the login
+is unknown use `useAuthentication` instead.
+
+## Get the authentication state
+
+Finally there are two ways to access the entire login state.
+
+### Via useAuthentication
+
+This variant uses a hook called `useAuthentication` which is preferred:
+
+```js
+import { useAuthentication } from '@42.nl/authentication';
+
+interface User {
+  name: string;
+}
+
+function User() {
+  const authentication = useAuthentication<User>();
+
+  if (authentication.isLoggedIn) {
+    return <h1>Hi {% raw %}{ currentUser.name }{% endraw %}</h1>;
+  } else {
+    return <h1>Please log in</h1>;
+  }
+}
+```
+
+### Via AuthenticationContext
+
+This variant uses the `AuthenticationContext`, which you should only
+use when using a class Component. Try using `useAuthentication` if
+it is possible instead.
+
+```js
+import { AuthenticationContext } from '@42.nl/authentication';
+
+interface User {
+  name: string;
+}
+
+class User extends React.Component {
+  render() {
+    return (
+      <AuthenticationContext.Consumer>
+        {(authentication: AuthenticationState<User> | null) => {
+          if (authentication === null) {
+            return <p>Unknown</p>;
+          } else {
+            const text = authentication.isLoggedIn
+              ? 'Logged in'
+              : 'Please log in';
+            return <p>{text}</p>;
+          }
+        }}
+      </AuthenticationContext.Consumer>
+    );
+  }
+}
+```
+
+Note: you must have setup the `AuthenticationProvider` before this
+works. See "Getting started".
 
 ## Send a request with the XSRF token as the current user.
 
@@ -301,7 +396,7 @@ library:
 
 ```js
 
-import 'authFetch' from './authentication'
+import 'authFetch' from '@42.nl/authentication';
 
 function getUser() {
   authFetch('/user/1').then((response) => {

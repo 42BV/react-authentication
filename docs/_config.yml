@@ -1,4 +1,4 @@
 theme: jekyll-theme-tactile
-title: [jarb-final-form]
-description: [Validating forms through JaRB, with react-final-form.]
+title: ['@42.nl/authentication']
+description: [Authenticating with a Spring Security application and storing the currentUser.]
 show_downloads: false
