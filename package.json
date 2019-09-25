@@ -22,15 +22,17 @@
   },
   "homepage": "https://github.com/42BV/react-authentication#readme",
   "peerDependencies": {
-    "react-router-dom": "^4.0.0"
+    "react-router-dom": "^5.0.0",
+    "react-router": "^5.0.0"
   },
   "devDependencies": {
     "@testing-library/react": "8.0.4",
     "@types/fetch-mock": "7.2.3",
     "@types/jest": "24.0.9",
-    "@types/react": "16.8.6",
-    "@types/react-dom": "16.8.2",
-    "@types/react-router-dom": "4.3.1",
+    "@types/react": "16.9.3",
+    "@types/react-dom": "16.9.1",
+    "@types/react-router-dom": "5.1.0",
+    "@types/react-router": "5.1.0",
     "@typescript-eslint/eslint-plugin": "1.4.2",
     "@typescript-eslint/parser": "1.4.2",
     "eslint": "5.15.1",
@@ -42,21 +44,25 @@
     "jest": "24.8.0",
     "jest-dom": "3.5.0",
     "lint-staged": "8.1.5",
+    "np": "^5.1.0",
     "prettier": "1.16.4",
-    "react": "16.8.6",
+    "react": "16.9.0",
     "react-addons-test-utils": "15.6.2",
-    "react-dom": "16.8.6",
-    "react-router-dom": "5.0.1",
+    "react-dom": "16.9.0",
+    "react-router": "5.1.0",
+    "react-router-dom": "5.1.0",
     "ts-jest": "24.0.0",
     "typescript": "3.5.2"
   },
   "scripts": {
     "start": "jest test --watch",
     "test": "jest test --coverage",
+    "docs": "jekyll serve -s docs",
     "coverage": "npm test -- --coverage",
     "ts": "tsc --version && tsc",
     "lint": "eslint \"src/**\"",
-    "prepublish": "rm -rf lib && npm run lint && npm test && npm run ts"
+    "prepublish": "rm -rf lib && npm run lint && npm test && npm run ts",
+    "release": "np --otp"
   },
   "dependencies": {
     "node-fetch": "2.3.0"

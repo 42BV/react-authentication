@@ -8,11 +8,11 @@ import { configureAuthentication, getService } from '../../src/config';
 
 import { AuthorizedRoute } from '../../src/routeguards/AuthorizedRoute';
 
-function Dashboard() {
+function Dashboard(): JSX.Element {
   return <h1 data-testid="header">Hello World</h1>;
 }
 
-function Login() {
+function Login(): JSX.Element {
   return <h1 data-testid="header">Please log in</h1>;
 }
 
@@ -48,10 +48,13 @@ describe('AuthorizedRoute', () => {
           <AuthorizedRoute<User>
             authorizer={user => user.isAdmin}
             path="/dashboard"
-            component={Dashboard}
             exact
-          />
-          <Route path="/login" component={Login} exact />
+          >
+            <Dashboard />
+          </AuthorizedRoute>
+          <Route path="/login" exact>
+            <Login />
+          </Route>
         </Switch>
       </Router>
     );

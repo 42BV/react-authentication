@@ -15,9 +15,9 @@ work or what it looks like.
 
 Here's what a LoginForm should do:
 
-  1. Call 'login' when the user submits the login form, with the correct body.
-  2. Try to auto-login the user via `current` in the componentDidMount.
-  3. In the `render` Redirect the user when he is logged in.
+1. Call 'login' when the user submits the login form, with the correct body.
+2. Try to auto-login the user via `current` in the componentDidMount.
+3. In the `render` Redirect the user when he is logged in.
 
 For example:
 
@@ -75,7 +75,7 @@ export export class Login extends Component<Props, State> {
   }
 
   render() {
-    // Be sure 
+    // Be sure
     if (this.props.loggedIn) {
       const { from } = this.props.location.state || { from: { pathname: '/' } };
 
@@ -149,16 +149,8 @@ export default function Logout() {
     return <Redirect to="/" />;
   }
 
-  return (
-    <button>
-      type="button"
-      onClick={onLogout}
-    >
-      Logout
-    </button>
-  );
+  return <button>type="button" onClick={onLogout}> Logout</button>;
 }
-
 ```
 
 ## Make a Route private
@@ -167,11 +159,11 @@ Some routes can only be accessible when the user is logged in.
 You can do this via the PrivateRoute for example:
 
 ```js
-<BrowserRouter history={ browserHistory }>
+<BrowserRouter history={browserHistory}>
   <div>
-    <Route exact path="/" component={ Dashboard } />
-    <Route path="/login" component={ Login }/>
-    <PrivateRoute path="/users" component={ Users } />
+    <Route exact path="/" component={Dashboard} />
+    <Route path="/login" component={Login} />
+    <PrivateRoute path="/users" component={Users} />
   </div>
 </BrowserRouter>
 ```
@@ -191,16 +183,23 @@ user. You can do this via the AuthorizedRoute.
 ```js
 <BrowserRouter>
   <div>
-    <Route exact path="/" component={ Dashboard } />
-    <Route path="/login" component={ Login }/>
-    <PrivateRoute path="/users" component={ Users } />
-    <AuthorizedRoute 
-      path="/pictures" 
-      component={ Pictures }
-      authorizer={ (authenticationStore: AuthenticationStore) => {
+    <Route exact path="/">
+      <Dashboard />
+    </Route>
+    <Route path="/login">
+      <Login />
+    </Route>
+    <PrivateRoute path="/users">
+      <Users />
+    </PrivateRoute>
+    <AuthorizedRoute
+      path="/pictures"
+      authorizer={(authenticationStore: AuthenticationStore) => {
         return authenticationStore.currentUser.role === 'ADMIN';
       }}
-    />
+    >
+      <Pictures />
+    </AuthorizedRoute>
   </div>
 </BrowserRouter>
 ```

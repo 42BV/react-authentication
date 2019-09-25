@@ -35,8 +35,12 @@ describe('PrivateRoute', () => {
     return render(
       <Router history={history}>
         <Switch>
-          <PrivateRoute path="/dashboard" component={Dashboard} exact />
-          <Route path="/login" component={Login} exact />
+          <PrivateRoute path="/dashboard" exact>
+            <Dashboard />
+          </PrivateRoute>
+          <Route path="/login" exact>
+            <Login />
+          </Route>
         </Switch>
       </Router>
     );

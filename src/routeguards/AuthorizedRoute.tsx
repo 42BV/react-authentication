@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  Route,
-  Redirect,
-  RouteComponentProps,
-  RouteProps
-} from 'react-router-dom';
+import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { getConfig, Config } from '../config';
 import { useAuthentication } from '../hooks';
@@ -12,9 +8,6 @@ import { useAuthentication } from '../hooks';
 export type Authorizer<User> = (user: User) => boolean;
 
 export interface Props<User> extends RouteProps {
-  component:
-    | React.ComponentType<RouteComponentProps<any>>
-    | React.ComponentType<any>;
   authorizer: Authorizer<User>;
 }
 
@@ -37,39 +30,21 @@ export interface Props<User> extends RouteProps {
  * @returns Either the Component or a Redirect
  */
 export function AuthorizedRoute<User>({
-  component,
   authorizer,
+  children,
   ...rest
 }: Props<User>): JSX.Element {
   const config: Config = getConfig();
   const authentication = useAuthentication();
+  const location = useLocation();
 
-  // @ts-ignore
   const isLoggedIn = authentication.isLoggedIn;
-
-  // @ts-ignore
-  const user: User = authentication.currentUser;
-  
-  // @ts-ignore
+  const user = authentication.currentUser as User;
   const allowed = isLoggedIn && authorizer(user);
 
-  return (
-    <Route
-      {...rest}
-      render={(
-        props: RouteComponentProps & React.ClassAttributes<typeof component>
-      ) =>
-        allowed ? (
-          React.createElement(component, props)
-        ) : (
-          <Redirect
-            to={{
-              pathname: config.loginRoute,
-              state: { from: props.location }
-            }}
-          />
-        )
-      }
-    />
-  );
+  if (!allowed) {
+    return <Redirect to={{ pathname: config.loginRoute, state: location }} />;
+  }
+
+  return <Route {...rest}>{children}</Route>;
 }

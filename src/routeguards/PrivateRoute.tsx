@@ -1,19 +1,9 @@
 import React from 'react';
-import {
-  Route,
-  Redirect,
-  RouteComponentProps,
-  RouteProps
-} from 'react-router-dom';
+import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { getConfig, Config } from '../config';
 import { useAuthentication } from '../hooks';
-
-export interface Props extends RouteProps {
-  component:
-    | React.ComponentType<RouteComponentProps<any>>
-    | React.ComponentType<any>;
-}
 
 /**
  * Works just like a regular Route except for when the user is
@@ -28,31 +18,21 @@ export interface Props extends RouteProps {
  * @param props The props for the PrivateRoute
  * @returns Either the Component or a Redirect
  */
-export function PrivateRoute({
-  component,
-  ...rest
-}: Props): JSX.Element {
+export function PrivateRoute({ children, ...rest }: RouteProps): JSX.Element {
   const config: Config = getConfig();
+  const location = useLocation();
   const authentication = useAuthentication();
 
-  return (
-    <Route
-      {...rest}
-      render={(
-        props: RouteComponentProps & React.ClassAttributes<typeof component>
-      ) =>
-        //@ts-ignore
-        authentication.isLoggedIn ? (
-          React.createElement(component, props)
-        ) : (
-          <Redirect
-            to={{
-              pathname: config.loginRoute,
-              state: { from: props.location }
-            }}
-          />
-        )
-      }
-    />
-  );
+  if (authentication.isLoggedIn === false) {
+    return (
+      <Redirect
+        to={{
+          pathname: config.loginRoute,
+          state: { from: location }
+        }}
+      />
+    );
+  }
+
+  return <Route {...rest}>{children}</Route>;
 }
