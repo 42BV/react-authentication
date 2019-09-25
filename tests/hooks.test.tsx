@@ -112,7 +112,6 @@ describe('useLoggedIn', () => {
 
   test('not logged in', async () => {
     const { getByTestId } = setup({ isLoggedIn: false });
-
     await wait(() => {
       expect(getByTestId('header')).toHaveTextContent('Please log in');
     });
