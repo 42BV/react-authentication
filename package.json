@@ -1,6 +1,6 @@
 {
   "name": "@42.nl/authentication",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Authenticating with a Spring Security application and storing the currentUser.",
   "files": [
     "lib"
@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/42BV/react-authentication#readme",
   "peerDependencies": {
-    "react-router-dom": "^5.0.0",
-    "react-router": "^5.0.0"
+    "react-router-dom": "^5.1.0",
+    "react-router": "^5.1.0"
   },
   "devDependencies": {
     "@testing-library/react": "8.0.4",
