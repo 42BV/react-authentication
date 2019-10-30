@@ -2,14 +2,18 @@ import React from 'react';
 import { createMemoryHistory } from 'history';
 import { Router, Route, Switch } from 'react-router-dom';
 import { render, cleanup, wait } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
-
 import { AuthorizedRoute } from '../../src/routeguards/AuthorizedRoute';
+import { PrivateRoute } from '../../src/routeguards/PrivateRoute';
 
 function Dashboard(): JSX.Element {
-  return <h1 data-testid="header">Hello World</h1>;
+  return <h1 data-testid="header">Hello logged in user</h1>;
+}
+
+function AdminArea(): JSX.Element {
+  return <h1 data-testid="header">Hello logged in admin</h1>;
 }
 
 function Login(): JSX.Element {
@@ -25,32 +29,39 @@ type User = {
 describe('AuthorizedRoute', () => {
   function setup({
     isLoggedIn,
-    isAdmin
+    isAdmin,
+    route
   }: {
     isLoggedIn: boolean;
     isAdmin: boolean;
+    route: string;
   }) {
     configureAuthentication({
       authenticationUrl: '/api/authentication',
       currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
+      loginRoute: '/login',
+      dashboardRoute: '/'
     });
 
     if (isLoggedIn) {
       getService().login({ isAdmin });
     }
 
-    const history = createMemoryHistory({ initialEntries: ['/dashboard'] });
+    const history = createMemoryHistory({ initialEntries: [route] });
 
     return render(
       <Router history={history}>
         <Switch>
+          <PrivateRoute path="/" exact>
+            <Dashboard />
+          </PrivateRoute>
+
           <AuthorizedRoute<User>
             authorizer={user => user.isAdmin}
-            path="/dashboard"
+            path="/admin"
             exact
           >
-            <Dashboard />
+            <AdminArea />
           </AuthorizedRoute>
           <Route path="/login" exact>
             <Login />
@@ -61,23 +72,46 @@ describe('AuthorizedRoute', () => {
   }
 
   test('loggedIn as admin', async () => {
-    const { getByTestId } = setup({ isLoggedIn: true, isAdmin: true });
+    const { getByTestId } = setup({
+      isLoggedIn: true,
+      isAdmin: true,
+      route: '/admin'
+    });
 
     await wait(() => {
-      expect(getByTestId('header')).toHaveTextContent('Hello World');
+      expect(getByTestId('header')).toHaveTextContent('Hello logged in admin');
     });
   });
 
   test('loggedIn as non admin', async () => {
-    const { getByTestId } = setup({ isLoggedIn: true, isAdmin: false });
+    const { getByTestId } = setup({
+      isLoggedIn: true,
+      isAdmin: false,
+      route: '/admin'
+    });
+    const route = getByTestId('header');
 
     await wait(() => {
-      expect(getByTestId('header')).toHaveTextContent('Please log in');
+      expect(route).toHaveTextContent('Hello logged in user');
     });
   });
 
+  test('not logged in but somehow admin', () => {
+    const { getByTestId } = setup({
+      isLoggedIn: false,
+      isAdmin: true,
+      route: '/admin'
+    });
+
+    expect(getByTestId('header')).toHaveTextContent('Please log in');
+  });
+
   test('not logged in', () => {
-    const { getByTestId } = setup({ isLoggedIn: false, isAdmin: true });
+    const { getByTestId } = setup({
+      isLoggedIn: false,
+      isAdmin: false,
+      route: '/admin'
+    });
 
     expect(getByTestId('header')).toHaveTextContent('Please log in');
   });

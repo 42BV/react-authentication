@@ -21,24 +21,24 @@ Here's what a LoginForm should do:
 
 For example:
 
-```js
+```tsx
 import React, { Component } from 'react';
 import { Redirect, locationShape } from 'react-router-dom';
 import { login, current } from '@42nl/authentication';
 
 interface Props {
-  loggedIn: boolean,
-  location: locationShape
-};
+  loggedIn: boolean;
+  location: locationShape;
+}
 
 interface State {
-  username: string,
-  password: string,
-  error: boolean,
-  autoLoginFailed: boolean
-};
+  username: string;
+  password: string;
+  error: boolean;
+  autoLoginFailed: boolean;
+}
 
-export export class Login extends Component<Props, State> {
+export class Login extends Component<Props, State> {
   state = {
     username: '',
     password: '',
@@ -61,7 +61,7 @@ export export class Login extends Component<Props, State> {
     this.setState({ error: false });
 
     // `login` expects a body to send to the server
-    login({ username, password }).catch((error) => {
+    login({ username, password }).catch(error => {
       this.setState({ error: true });
     });
   }
@@ -79,7 +79,7 @@ export export class Login extends Component<Props, State> {
     if (this.props.loggedIn) {
       const { from } = this.props.location.state || { from: { pathname: '/' } };
 
-      return <Redirect to={ from }/>;
+      return <Redirect to={from} />;
     }
 
     if (this.state.autoLoginFailed === false) {
@@ -99,8 +99,8 @@ export export class Login extends Component<Props, State> {
             id="username"
             name="username"
             type="text"
-            value={ username }
-            onChange={ (event) => this.setUsername(event.target.value) }
+            value={username}
+            onChange={event => this.setUsername(event.target.value)}
           />
         </p>
 
@@ -110,14 +110,16 @@ export export class Login extends Component<Props, State> {
             id="password"
             name="password"
             type="password"
-            value={ password }
-            onChange={ (event) => this.setPassword(event.target.value) }
+            value={password}
+            onChange={event => this.setPassword(event.target.value)}
           />
         </p>
 
-        <p>{ errorMessage }</p>
+        <p>{errorMessage}</p>
 
-        <button type="sumbit" onClick={ (event) => this.onSubmit(event) }>Log in</button>
+        <button type="sumbit" onClick={event => this.onSubmit(event)}>
+          Log in
+        </button>
       </form>
     );
   }
@@ -132,7 +134,7 @@ logged in.
 
 For example:
 
-```js
+```tsx
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { logout, useIsLoggedIn } from '@42.nl/authentication';
@@ -158,12 +160,18 @@ export default function Logout() {
 Some routes can only be accessible when the user is logged in.
 You can do this via the PrivateRoute for example:
 
-```js
+```tsx
 <BrowserRouter history={browserHistory}>
   <div>
-    <Route exact path="/" component={Dashboard} />
-    <Route path="/login" component={Login} />
-    <PrivateRoute path="/users" component={Users} />
+    <Route exact path="/">
+      <Dashboard />
+    </Route>
+    <Route path="/login">
+      <Login />
+    </Route>
+    <PrivateRoute path="/users">
+      <Users />
+    </PrivateRoute>
   </div>
 </BrowserRouter>
 ```
@@ -180,7 +188,7 @@ to the Config's route `loginRoute`.
 Some routes can only be accessed by a type of user or a specific
 user. You can do this via the AuthorizedRoute.
 
-```js
+```tsx
 <BrowserRouter>
   <div>
     <Route exact path="/">
@@ -220,7 +228,7 @@ to the Config's route `loginRoute`.
 Lets say you have a component which needs to know whether the
 user is logged in, you can use the hook `useIsLoggedIn` for this:
 
-```js
+```tsx
 import { useIsLoggedIn } from '@42.nl/authentication';
 
 function User() {
@@ -239,7 +247,7 @@ function User() {
 Lets say you have a component which must render some information
 about the current user, you can use the hook `useCurrentUser` for this:
 
-```js
+```tsx
 import { useCurrentUser } from '@42.nl/authentication';
 
 interface User {
@@ -271,7 +279,7 @@ Finally there are two ways to access the entire login state.
 
 This variant uses a hook called `useAuthentication` which is preferred:
 
-```js
+```tsx
 import { useAuthentication } from '@42.nl/authentication';
 
 interface User {
@@ -295,7 +303,7 @@ This variant uses the `AuthenticationContext`, which you should only
 use when using a class Component. Try using `useAuthentication` if
 it is possible instead.
 
-```js
+```tsx
 import { AuthenticationContext } from '@42.nl/authentication';
 
 interface User {
@@ -331,7 +339,7 @@ To perform request with the XSRF token and with the cookies from
 the current user. You can use the 'authFetch' utility from this
 library:
 
-```js
+```tsx
 
 import 'authFetch' from '@42.nl/authentication';
 

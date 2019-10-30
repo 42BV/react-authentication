@@ -12,6 +12,12 @@ export interface Config {
     Used by PrivateRoute and AuthorizedRoute.
     */
   loginRoute: string;
+
+  /*
+    The location to redirect the user to when the user is logged in, 
+    but not authorized to see a route. Used by AuthorizedRoute.
+    */
+  dashboardRoute: string;
 }
 
 let config: Config | null = null;
@@ -22,7 +28,14 @@ let service: AuthenticationService<any> | null = null;
  *
  * @param {Config} The new configuration
  */
-export function configureAuthentication<User>(c: Config): void {
+export function configureAuthentication<User>(
+  c: Config = {
+    authenticationUrl: '/api/authentication',
+    currentUserUrl: '/api/authentication/current',
+    loginRoute: '/login',
+    dashboardRoute: '/'
+  }
+): void {
   config = c;
   service = makeAuthenticationService<User>();
 }
@@ -47,4 +60,13 @@ export function getService(): AuthenticationService<any> {
   } else {
     return service;
   }
-} 
+}
+
+// Testing purposes only
+export function setConfig(c: Config | null): void {
+  config = c;
+}
+
+export function setService(s: AuthenticationService<any> | null): void {
+  service = s;
+}

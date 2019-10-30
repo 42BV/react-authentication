@@ -2,7 +2,7 @@ import React from 'react';
 import { createMemoryHistory } from 'history';
 import { Router, Route, Switch } from 'react-router-dom';
 import { render, cleanup, wait } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
 
@@ -20,11 +20,7 @@ afterEach(cleanup);
 
 describe('PrivateRoute', () => {
   function setup({ isLoggedIn }: { isLoggedIn: boolean }) {
-    configureAuthentication({
-      authenticationUrl: '/api/authentication',
-      currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
-    });
+    configureAuthentication();
 
     if (isLoggedIn) {
       getService().login({});
