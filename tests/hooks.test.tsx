@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, cleanup, wait } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
+
 import { configureAuthentication, getService } from '../src/config';
 import { useCurrentUser, useIsLoggedIn } from '../src/hooks';
 
@@ -41,11 +42,7 @@ describe('useCurrentUser', () => {
   }
 
   function setup({ isLoggedIn }: { isLoggedIn: boolean }) {
-    configureAuthentication<User>({
-      authenticationUrl: '/api/authentication',
-      currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
-    });
+    configureAuthentication<User>();
 
     if (isLoggedIn) {
       getService().login({ username: 'John' });
@@ -89,11 +86,7 @@ describe('useLoggedIn', () => {
   }
 
   function setup({ isLoggedIn }: { isLoggedIn: boolean }) {
-    configureAuthentication<User>({
-      authenticationUrl: '/api/authentication',
-      currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
-    });
+    configureAuthentication<User>();
 
     if (isLoggedIn) {
       getService().login({ username: 'John' });

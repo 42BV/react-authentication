@@ -20,9 +20,7 @@ export interface AuthenticationService<User> {
  * Exposes a subscription to anyone who wants to listen to the
  * changes to the AuthenticationState.
  */
-export function makeAuthenticationService<
-  User
->(): AuthenticationService<User> {
+export function makeAuthenticationService<User>(): AuthenticationService<User> {
   let state: AuthenticationState<User> = getDefaultState();
 
   let subscribers: Subscriber<User>[] = [];

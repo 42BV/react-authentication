@@ -14,13 +14,9 @@ describe('AuthenticationService', () => {
 
     // Mock the action creators
     // @ts-ignore
-    config.getService = jest.fn(() => ({logout: logoutSpy, login: loginSpy}));
+    config.getService = jest.fn(() => ({ logout: logoutSpy, login: loginSpy }));
 
-    configureAuthentication({
-      authenticationUrl: '/api/authentication',
-      currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
-    });
+    configureAuthentication();
   });
 
   afterEach(() => {

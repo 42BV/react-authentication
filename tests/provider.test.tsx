@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, cleanup, wait } from '@testing-library/react';
-import 'jest-dom/extend-expect';
+import '@testing-library/jest-dom/extend-expect';
 
 import { AuthenticationProvider, AuthenticationContext } from '../src/provider';
 import { configureAuthentication, getService } from '../src/config';
@@ -18,7 +18,9 @@ function Component() {
           console.log('yo');
           return <p data-testid="header">Unknown</p>;
         } else {
-          const text = authentication.isLoggedIn ? 'Logged in' : 'Please log in';
+          const text = authentication.isLoggedIn
+            ? 'Logged in'
+            : 'Please log in';
           return <p data-testid="header">{text}</p>;
         }
       }}
@@ -30,11 +32,7 @@ afterEach(cleanup);
 
 describe('PrivateRoute', () => {
   function setup({ isLoggedIn }: { isLoggedIn: boolean | null }) {
-    configureAuthentication({
-      authenticationUrl: '/api/authentication',
-      currentUserUrl: '/api/authentication/current',
-      loginRoute: '/login'
-    });
+    configureAuthentication();
 
     if (isLoggedIn === true) {
       getService().login({});
