@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMemoryHistory } from 'history';
 import { Router, Route, Switch } from 'react-router-dom';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
@@ -43,9 +43,11 @@ describe('PrivateRoute', () => {
   }
 
   test('loggedIn', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: true });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Hello World');
     });
   });

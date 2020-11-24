@@ -5,19 +5,18 @@ import { configureAuthentication } from '../src/config';
 import * as config from '../src/config';
 
 describe('AuthenticationService', () => {
-  let loginSpy: jest.Mock<any, any>;
-  let logoutSpy: jest.Mock<any, any>;
-
-  beforeEach(() => {
-    loginSpy = jest.fn();
-    logoutSpy = jest.fn();
+  function setup() {
+    const loginSpy = jest.fn();
+    const logoutSpy = jest.fn();
 
     // Mock the action creators
-    // @ts-ignore
+    // @ts-expect-error test mock
     config.getService = jest.fn(() => ({ logout: logoutSpy, login: loginSpy }));
 
     configureAuthentication();
-  });
+
+    return { logoutSpy, loginSpy };
+  }
 
   afterEach(() => {
     fetchMock.restore();
@@ -25,6 +24,10 @@ describe('AuthenticationService', () => {
 
   describe('login', () => {
     test('200', async () => {
+      expect.assertions(2);
+
+      const { loginSpy } = setup();
+
       fetchMock.post('/api/authentication', { fake: 'user' });
 
       await login({ user: 'Maarten', password: 'netraam' });
@@ -34,6 +37,10 @@ describe('AuthenticationService', () => {
     });
 
     test('500', async () => {
+      expect.assertions(1);
+
+      const { loginSpy } = setup();
+
       fetchMock.post('/api/authentication', 500);
 
       try {
@@ -47,6 +54,10 @@ describe('AuthenticationService', () => {
 
   describe('current', () => {
     test('200', async () => {
+      expect.assertions(2);
+
+      const { loginSpy } = setup();
+
       fetchMock.get('/api/authentication/current', { fake: 'current' });
       await current();
 
@@ -55,6 +66,10 @@ describe('AuthenticationService', () => {
     });
 
     test('500', async () => {
+      expect.assertions(1);
+
+      const { loginSpy } = setup();
+
       fetchMock.get('/api/authentication/current', 500);
 
       try {
@@ -68,6 +83,10 @@ describe('AuthenticationService', () => {
 
   describe('logout', () => {
     test('200', async () => {
+      expect.assertions(1);
+
+      const { logoutSpy } = setup();
+
       fetchMock.delete('/api/authentication', 200);
 
       await logout();
@@ -76,6 +95,10 @@ describe('AuthenticationService', () => {
     });
 
     test('500', async () => {
+      expect.assertions(2);
+
+      const { logoutSpy } = setup();
+
       fetchMock.delete('/api/authentication', 500);
 
       try {

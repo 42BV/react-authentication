@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AuthenticationProvider, AuthenticationContext } from '../src/provider';
@@ -48,9 +48,11 @@ describe('PrivateRoute', () => {
   }
 
   test('loggedIn', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: true });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Logged in');
     });
   });

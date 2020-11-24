@@ -1,17 +1,17 @@
-export interface AuthenticationState<User> {
+export type AuthenticationState<User> = {
   currentUser?: User;
   isLoggedIn: boolean;
-}
+};
 
 export type Subscriber<User> = (state: AuthenticationState<User>) => void;
 
-export interface AuthenticationService<User> {
+export type AuthenticationService<User> = {
   login(user: User): void;
   logout(): void;
   subscribe(subscriber: Subscriber<User>): void;
   unsubscribe(subscriber: Subscriber<User>): void;
   getState: () => AuthenticationState<User>;
-}
+};
 
 /**
  * Creates a AuthenticationService which stores the current user and
@@ -56,11 +56,11 @@ export function makeAuthenticationService<User>(): AuthenticationService<User> {
   }
 
   function unsubscribe(subscriber: Subscriber<User>): void {
-    subscribers = subscribers.filter(s => s !== subscriber);
+    subscribers = subscribers.filter((s) => s !== subscriber);
   }
 
   function informSubscribers() {
-    subscribers.forEach(subscriber => subscriber({ ...state }));
+    subscribers.forEach((subscriber) => subscriber({ ...state }));
   }
 }
 

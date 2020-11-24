@@ -4,16 +4,16 @@ import { authFetch } from '../src/utils';
 import * as config from '../src/config';
 
 describe('authFetch', () => {
-  let logout: jest.Mock<any, any>;
+  function setup() {
+    const logout = jest.fn();
 
-  beforeEach(() => {
-    logout = jest.fn();
-
-    // @ts-ignore
-    config.getService = jest.fn(() => ({logout}));
+    // @ts-expect-error test mock
+    config.getService = jest.fn(() => ({ logout }));
 
     document.cookie = 'XSRF-TOKEN=d3add0g';
-  });
+
+    return { logout };
+  }
 
   afterEach(() => {
     fetchMock.restore();
@@ -21,11 +21,15 @@ describe('authFetch', () => {
 
   describe('headers', () => {
     test('without CSRF token', async () => {
+      expect.assertions(2);
+
+      const { logout } = setup();
+
       fetchMock.get(
         '/api/GET',
         { fake: 'fake' },
         {
-          // @ts-ignore
+          // @ts-expect-error test mock
           credentials: 'same-origin'
         }
       );
@@ -40,11 +44,15 @@ describe('authFetch', () => {
     });
 
     test('with CSRF token', async () => {
+      expect.assertions(2);
+
+      const { logout } = setup();
+
       fetchMock.post(
         '/api/POST',
         { fake: 'fake' },
         {
-          // @ts-ignore
+          // @ts-expect-error test mock
           credentials: 'same-origin',
           headers: { 'X-XSRF-TOKEN': 'd3add0g' }
         }
@@ -61,11 +69,15 @@ describe('authFetch', () => {
     });
 
     test('with user headers', async () => {
+      expect.assertions(2);
+
+      const { logout } = setup();
+
       fetchMock.post(
         '/api/POST',
         { fake: 'fake' },
         {
-          // @ts-ignore
+          // @ts-expect-error test mock
           credentials: 'same-origin',
           headers: { 'X-XSRF-TOKEN': 'd3add0g', 'X-AWESOME': '42' }
         }
@@ -84,6 +96,10 @@ describe('authFetch', () => {
   });
 
   test('401 error handling', async () => {
+    expect.assertions(2);
+
+    const { logout } = setup();
+
     fetchMock.get(
       '/api/GET',
       {
@@ -91,7 +107,7 @@ describe('authFetch', () => {
         body: '{ "fake": "fake" }'
       },
       {
-        // @ts-ignore
+        // @ts-expect-error test mock
         credentials: 'same-origin'
       }
     );

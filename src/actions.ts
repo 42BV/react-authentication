@@ -2,6 +2,7 @@ import { authFetch } from './utils';
 import { getConfig, getService } from './config';
 
 // Throw error when not 200 otherwise parse response.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function tryParse(response: Response): Promise<any> {
   if (response.status !== 200) {
     throw response;
@@ -22,13 +23,13 @@ function tryParse(response: Response): Promise<any> {
  * { "id": 1, "name": "sjonnyb", "roles": ["ADMIN"] }
  * ```
  *
- * The entire response will be written to the AuthenticationService. 
+ * The entire response will be written to the AuthenticationService.
  * Whatever the JSON response is will be the currentUser.
  *
- * @param {Object} body The body, representing the user, to send in JSON form to the back-end.
+ * @param {Record<string, unknown>} body The body, representing the user, to send in JSON form to the back-end.
  * @returns { Promise } An empty Promise
  */
-export async function login(body: object): Promise<void> {
+export async function login(body: Record<string, unknown>): Promise<void> {
   const { authenticationUrl } = getConfig();
   const service = getService();
 

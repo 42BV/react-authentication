@@ -1,15 +1,16 @@
-
 import { makeAuthenticationService } from '../src/service';
 
 type User = {
   username: string;
-}
+};
 
 describe('AuthenticationService', () => {
   test('login should alter state and inform subscribers', async (done) => {
+    expect.assertions(2);
+
     const service = makeAuthenticationService<User>();
 
-    const user: User = {username: "Henk"};
+    const user: User = { username: 'Henk' };
 
     service.login(user);
 
@@ -18,10 +19,12 @@ describe('AuthenticationService', () => {
       expect(state.isLoggedIn).toBe(true);
 
       done();
-    })
+    });
   });
 
-  test('logout should alter state and inform subscribers', async(done) => {
+  test('logout should alter state and inform subscribers', async (done) => {
+    expect.assertions(2);
+
     const service = makeAuthenticationService<User>();
 
     service.logout();
@@ -31,7 +34,7 @@ describe('AuthenticationService', () => {
       expect(state.isLoggedIn).toBe(false);
 
       done();
-    })
+    });
   });
 
   test('subscription lifecycle', () => {

@@ -1,6 +1,6 @@
 import { makeAuthenticationService, AuthenticationService } from './service';
 
-export interface Config {
+export type Config = {
   // The URL to POST login request and DELETE logout request.
   authenticationUrl: string;
 
@@ -18,9 +18,10 @@ export interface Config {
     but not authorized to see a route. Used by AuthorizedRoute.
     */
   dashboardRoute: string;
-}
+};
 
 let config: Config | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let service: AuthenticationService<any> | null = null;
 
 /**
@@ -54,7 +55,7 @@ export function getConfig(): Config {
   }
 }
 
-export function getService(): AuthenticationService<any> {
+export function getService<User>(): AuthenticationService<User> {
   if (service === null) {
     throw new Error('The authentication service is not initialized.');
   } else {
@@ -67,6 +68,6 @@ export function setConfig(c: Config | null): void {
   config = c;
 }
 
-export function setService(s: AuthenticationService<any> | null): void {
+export function setService<User>(s: AuthenticationService<User> | null): void {
   service = s;
 }

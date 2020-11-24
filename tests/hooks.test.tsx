@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../src/config';
@@ -56,17 +56,21 @@ describe('useCurrentUser', () => {
   }
 
   test('loggedIn', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: true });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Welcome John');
     });
   });
 
   test('not logged in', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: false });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('error')).toHaveTextContent(
         '@42bv/authentication: Asked for current user whilst not logged in'
       );
@@ -96,16 +100,21 @@ describe('useLoggedIn', () => {
   }
 
   test('loggedIn', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: true });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('You are logged in');
     });
   });
 
   test('not logged in', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({ isLoggedIn: false });
-    await wait(() => {
+
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Please log in');
     });
   });

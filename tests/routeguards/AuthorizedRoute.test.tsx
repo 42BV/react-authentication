@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMemoryHistory } from 'history';
 import { Router, Route, Switch } from 'react-router-dom';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
@@ -57,7 +57,7 @@ describe('AuthorizedRoute', () => {
           </PrivateRoute>
 
           <AuthorizedRoute<User>
-            authorizer={user => user.isAdmin}
+            authorizer={(user) => user.isAdmin}
             path="/admin"
             exact
           >
@@ -72,18 +72,22 @@ describe('AuthorizedRoute', () => {
   }
 
   test('loggedIn as admin', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({
       isLoggedIn: true,
       isAdmin: true,
       route: '/admin'
     });
 
-    await wait(() => {
+    await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Hello logged in admin');
     });
   });
 
   test('loggedIn as non admin', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({
       isLoggedIn: true,
       isAdmin: false,
@@ -91,7 +95,7 @@ describe('AuthorizedRoute', () => {
     });
     const route = getByTestId('header');
 
-    await wait(() => {
+    await waitFor(() => {
       expect(route).toHaveTextContent('Hello logged in user');
     });
   });
