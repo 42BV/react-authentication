@@ -104,7 +104,8 @@ describe('AuthenticationService', () => {
       try {
         await logout();
         fail();
-      } catch (response) {
+      } catch (e: unknown) {
+        const response = e as Response;
         expect(response.status).toBe(500);
 
         expect(logoutSpy).toHaveBeenCalledTimes(0);

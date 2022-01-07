@@ -5,7 +5,7 @@ type User = {
 };
 
 describe('AuthenticationService', () => {
-  test('login should alter state and inform subscribers', async (done) => {
+  test('login should alter state and inform subscribers', () => {
     expect.assertions(2);
 
     const service = makeAuthenticationService<User>();
@@ -17,12 +17,10 @@ describe('AuthenticationService', () => {
     service.subscribe((state) => {
       expect(state.currentUser).toBe(user);
       expect(state.isLoggedIn).toBe(true);
-
-      done();
     });
   });
 
-  test('logout should alter state and inform subscribers', async (done) => {
+  test('logout should alter state and inform subscribers', () => {
     expect.assertions(2);
 
     const service = makeAuthenticationService<User>();
@@ -32,8 +30,6 @@ describe('AuthenticationService', () => {
     service.subscribe((state) => {
       expect(state.currentUser).toBe(undefined);
       expect(state.isLoggedIn).toBe(false);
-
-      done();
     });
   });
 
