@@ -16,6 +16,7 @@
     "outDir": "./lib",
     "removeComments": true,
     "sourceMap": true,
+    "inlineSources": true,
     "strict": true,
     "target": "es6",
     "jsx": "react",
