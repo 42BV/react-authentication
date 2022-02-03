@@ -4,7 +4,7 @@ export {
   AuthenticationState,
   getDefaultState
 } from './service.js';
-export { authFetch } from './utils.js';
+export { authFetch, authInterceptor, getXSRFToken } from './utils.js';
 export { login, current, logout } from './actions.js';
 export { PrivateRoute } from './routeguards/PrivateRoute';
 export { AuthorizedRoute } from './routeguards/AuthorizedRoute';

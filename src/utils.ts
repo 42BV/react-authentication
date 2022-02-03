@@ -1,11 +1,24 @@
 import { getService } from './config';
 
 // Get the XSRF token from the cookies.
-const getXSRFToken = (): string =>
-  document.cookie.replace(
-    /(?:(?:^|.*;\s*)XSRF-TOKEN\s*\=\s*([^;]*).*$)|^.*$/,
+export function getXSRFToken(): string {
+  return document.cookie.replace(
+    /(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$|^.*$/,
     '$1'
   );
+}
+
+/**
+ * Axios interceptor to automatically log the user out in the Redux store
+ * when the request you sent returns a 401 Not Authenticated.
+ */
+export function authInterceptor(response: Response) {
+  if (response.status === 401) {
+    return getService().logout();
+  }
+
+  return Promise.reject(response);
+}
 
 /**
  * Calls fetch and makes sure that credentials: 'same-origin' is passed
