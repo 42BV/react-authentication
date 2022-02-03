@@ -16,12 +16,12 @@ describe('authInterceptor', () => {
       logout: logoutSpy
     });
 
-    await authInterceptor({ status: 401 });
+    await authInterceptor({ status: 401 }).catch(() => undefined);
 
     expect(logoutSpy).toBeCalledTimes(1);
   });
 
-  it('should not call logout when status is 200', async () => {
+  it('should not call logout when status is 500', async () => {
     expect.assertions(1);
 
     const logoutSpy = jest.fn();
@@ -33,7 +33,7 @@ describe('authInterceptor', () => {
       logout: logoutSpy
     });
 
-    await authInterceptor({ status: 200 });
+    await authInterceptor({ status: 500 }).catch(() => undefined);
 
     expect(logoutSpy).toBeCalledTimes(0);
   });
