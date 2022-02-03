@@ -68,7 +68,7 @@
     "lint": "npm run lint:test && npm run lint:src",
     "lint:test": "eslint \"src/**\"",
     "lint:src": "eslint \"tests/**\"",
-    "release": "npm run tsc && np --otp",
+    "release": "np --otp",
     "dev:publish": "./scripts/dev-publish.sh",
     "prepare": "husky install"
   },
