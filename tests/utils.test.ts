@@ -1,7 +1,43 @@
 import fetchMock from 'fetch-mock';
 
-import { authFetch } from '../src/utils';
+import { authFetch, authInterceptor } from '../src/utils';
 import * as config from '../src/config';
+
+describe('authInterceptor', () => {
+  it('should call logout when status is 401', async () => {
+    expect.assertions(1);
+
+    const logoutSpy = jest.fn();
+    jest.spyOn(config, 'getService').mockReturnValue({
+      login: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+      getState: jest.fn(),
+      logout: logoutSpy
+    });
+
+    await authInterceptor({ status: 401 });
+
+    expect(logoutSpy).toBeCalledTimes(1);
+  });
+
+  it('should not call logout when status is 200', async () => {
+    expect.assertions(1);
+
+    const logoutSpy = jest.fn();
+    jest.spyOn(config, 'getService').mockReturnValue({
+      login: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+      getState: jest.fn(),
+      logout: logoutSpy
+    });
+
+    await authInterceptor({ status: 200 });
+
+    expect(logoutSpy).toBeCalledTimes(0);
+  });
+});
 
 describe('authFetch', () => {
   function setup() {

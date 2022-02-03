@@ -12,9 +12,9 @@ export function getXSRFToken(): string {
  * Axios interceptor to automatically log the user out in the Redux store
  * when the request you sent returns a 401 Not Authenticated.
  */
-export function authInterceptor(response: Response) {
+export function authInterceptor(response: { status: number }) {
   if (response.status === 401) {
-    return getService().logout();
+    getService().logout();
   }
 
   return Promise.reject(response);
