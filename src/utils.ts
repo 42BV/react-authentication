@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { getService } from './config';
 
 // Get the XSRF token from the cookies.
@@ -12,12 +13,20 @@ export function getXSRFToken(): string {
  * Axios interceptor to automatically log the user out in the Redux store
  * when the request you sent returns a 401 Not Authenticated.
  */
-export function authInterceptor(response: { status: number }) {
-  if (response.status === 401) {
+export function authInterceptor(error: AxiosError | { status: number }) {
+  if (isStatus401(error)) {
     getService().logout();
   }
 
-  return Promise.reject(response);
+  return Promise.reject(error);
+}
+
+function isStatus401(error: AxiosError | { status: number }) {
+  if (error.hasOwnProperty('response')) {
+    return (error as AxiosError)?.response?.status === 401;
+  }
+
+  return error?.status === 401;
 }
 
 /**

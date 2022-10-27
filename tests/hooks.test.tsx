@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { render, cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -18,7 +18,7 @@ describe('useCurrentUser', () => {
     return <p data-testid="header">Welcome {user.username}</p>;
   }
 
-  class ErrorBoundary extends React.Component {
+  class ErrorBoundary extends React.Component<{ children: ReactNode }> {
     state = {
       hasError: false,
       message: ''

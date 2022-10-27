@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Issues fixed
+
+#22: Fiexed the authInterceptor() to redirect to the login page when using it witch axios.
+
 ## [0.0.2] - 2019-09-25
 
 ### BREAKING CHANGES

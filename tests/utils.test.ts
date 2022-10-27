@@ -2,6 +2,7 @@ import fetchMock from 'fetch-mock';
 
 import { authFetch, authInterceptor } from '../src/utils';
 import * as config from '../src/config';
+import { AxiosError } from 'axios';
 
 describe('authInterceptor', () => {
   it('should call logout when status is 401', async () => {
@@ -21,6 +22,25 @@ describe('authInterceptor', () => {
     expect(logoutSpy).toBeCalledTimes(1);
   });
 
+  it('should call logout when status is 401 - with axios object', async () => {
+    expect.assertions(1);
+
+    const logoutSpy = jest.fn();
+    jest.spyOn(config, 'getService').mockReturnValue({
+      login: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+      getState: jest.fn(),
+      logout: logoutSpy
+    });
+
+    await authInterceptor({ response: { status: 401 } } as AxiosError).catch(
+      () => undefined
+    );
+
+    expect(logoutSpy).toBeCalledTimes(1);
+  });
+
   it('should not call logout when status is 500', async () => {
     expect.assertions(1);
 
@@ -34,6 +54,25 @@ describe('authInterceptor', () => {
     });
 
     await authInterceptor({ status: 500 }).catch(() => undefined);
+
+    expect(logoutSpy).toBeCalledTimes(0);
+  });
+
+  it('should not call logout when status is 500 - with axios object', async () => {
+    expect.assertions(1);
+
+    const logoutSpy = jest.fn();
+    jest.spyOn(config, 'getService').mockReturnValue({
+      login: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+      getState: jest.fn(),
+      logout: logoutSpy
+    });
+
+    await authInterceptor({ response: { status: 500 } } as AxiosError).catch(
+      () => undefined
+    );
 
     expect(logoutSpy).toBeCalledTimes(0);
   });
