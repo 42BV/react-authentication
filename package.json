@@ -1,6 +1,6 @@
 {
   "name": "@42.nl/authentication",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Authenticating with a Spring Security application and storing the currentUser.",
   "files": [
     "lib"
