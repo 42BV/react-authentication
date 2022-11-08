@@ -37,6 +37,7 @@ describe('useCurrentUser', () => {
         return <h1 data-testid="error">{message}</h1>;
       }
 
+      // @ts-expect-error Props should include children
       return this.props.children;
     }
   }
@@ -47,6 +48,8 @@ describe('useCurrentUser', () => {
     if (isLoggedIn) {
       getService().login({ username: 'John' });
     }
+
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     return render(
       <ErrorBoundary>

@@ -1,5 +1,3 @@
-import fetchMock from 'fetch-mock';
-
 import { authFetch, authInterceptor } from '../src/utils';
 import * as config from '../src/config';
 
@@ -16,7 +14,7 @@ describe('authInterceptor', () => {
       logout: logoutSpy
     });
 
-    await authInterceptor({ status: 401 }).catch(() => undefined);
+    await authInterceptor({ response: { status: 401 } }).catch(() => undefined);
 
     expect(logoutSpy).toBeCalledTimes(1);
   });
@@ -33,7 +31,7 @@ describe('authInterceptor', () => {
       logout: logoutSpy
     });
 
-    await authInterceptor({ status: 500 }).catch(() => undefined);
+    await authInterceptor({ response: { status: 500 } }).catch(() => undefined);
 
     expect(logoutSpy).toBeCalledTimes(0);
   });
@@ -51,26 +49,52 @@ describe('authFetch', () => {
     return { logout };
   }
 
-  afterEach(() => {
-    fetchMock.restore();
+  test('without options', async () => {
+    expect.assertions(4);
+
+    const { logout } = setup();
+
+    global.fetch = jest.fn().mockResolvedValue({
+      status: 200,
+      json: () => Promise.resolve({ fake: 'fake' })
+    });
+
+    const data = await authFetch('/api/GET');
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith('/api/GET', {
+      credentials: 'same-origin',
+      headers: {
+        'X-XSRF-TOKEN': 'd3add0g'
+      }
+    });
+
+    const json = await data.json();
+
+    expect(json).toEqual({ fake: 'fake' });
+
+    expect(logout).toHaveBeenCalledTimes(0);
   });
 
   describe('headers', () => {
     test('without CSRF token', async () => {
-      expect.assertions(2);
+      expect.assertions(4);
 
       const { logout } = setup();
 
-      fetchMock.get(
-        '/api/GET',
-        { fake: 'fake' },
-        {
-          // @ts-expect-error test mock
-          credentials: 'same-origin'
-        }
-      );
+      global.fetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ fake: 'fake' })
+      });
 
-      const data = await authFetch('/api/GET');
+      const data = await authFetch('/api/GET', { method: 'get' });
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith('/api/GET', {
+        method: 'get',
+        credentials: 'same-origin',
+        headers: {}
+      });
 
       const json = await data.json();
 
@@ -80,22 +104,26 @@ describe('authFetch', () => {
     });
 
     test('with CSRF token', async () => {
-      expect.assertions(2);
+      expect.assertions(4);
 
       const { logout } = setup();
 
-      fetchMock.post(
-        '/api/POST',
-        { fake: 'fake' },
-        {
-          // @ts-expect-error test mock
-          credentials: 'same-origin',
-          headers: { 'X-XSRF-TOKEN': 'd3add0g' }
-        }
-      );
+      global.fetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ fake: 'fake' })
+      });
 
       const data = await authFetch('/api/POST', {
         method: 'post'
+      });
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith('/api/POST', {
+        method: 'post',
+        credentials: 'same-origin',
+        headers: {
+          'X-XSRF-TOKEN': 'd3add0g'
+        }
       });
 
       const json = await data.json();
@@ -105,23 +133,28 @@ describe('authFetch', () => {
     });
 
     test('with user headers', async () => {
-      expect.assertions(2);
+      expect.assertions(4);
 
       const { logout } = setup();
 
-      fetchMock.post(
-        '/api/POST',
-        { fake: 'fake' },
-        {
-          // @ts-expect-error test mock
-          credentials: 'same-origin',
-          headers: { 'X-XSRF-TOKEN': 'd3add0g', 'X-AWESOME': '42' }
-        }
-      );
+      global.fetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ fake: 'fake' })
+      });
 
       const data = await authFetch('/api/POST', {
         method: 'post',
         headers: { 'X-AWESOME': '42' }
+      });
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith('/api/POST', {
+        method: 'post',
+        credentials: 'same-origin',
+        headers: {
+          'X-XSRF-TOKEN': 'd3add0g',
+          'X-AWESOME': '42'
+        }
       });
 
       const json = await data.json();
@@ -132,23 +165,24 @@ describe('authFetch', () => {
   });
 
   test('401 error handling', async () => {
-    expect.assertions(2);
+    expect.assertions(4);
 
     const { logout } = setup();
 
-    fetchMock.get(
-      '/api/GET',
-      {
-        status: 401,
-        body: '{ "fake": "fake" }'
-      },
-      {
-        // @ts-expect-error test mock
-        credentials: 'same-origin'
-      }
-    );
+    global.fetch = jest.fn().mockResolvedValue({
+      status: 401,
+      json: () => Promise.resolve({ fake: 'fake' })
+    });
 
     const data = await authFetch('/api/GET', { method: 'get' });
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith('/api/GET', {
+      method: 'get',
+      credentials: 'same-origin',
+      headers: {}
+    });
+
     const json = await data.json();
 
     expect(json).toEqual({ fake: 'fake' });
