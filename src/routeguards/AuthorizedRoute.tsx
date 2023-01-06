@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { getConfig, Config } from '../config';
 import { useAuthentication } from '../hooks';
 
-export type Authorizer<User> = (user: User) => boolean;
+export type Authorizer<User> = (user?: User) => boolean;
 
 export interface Props<User> extends RouteProps {
   authorizer: Authorizer<User>;
@@ -35,10 +35,8 @@ export function AuthorizedRoute<User>({
   ...rest
 }: Props<User>): JSX.Element {
   const config: Config = getConfig();
-  const authentication = useAuthentication();
+  const { currentUser, isLoggedIn } = useAuthentication<User>();
   const location = useLocation();
-
-  const isLoggedIn = authentication.isLoggedIn;
 
   /*
   We first check if the user is logged in before authorizing, this prevents
@@ -46,15 +44,18 @@ export function AuthorizedRoute<User>({
   users to the previous attempted route upon login.
   */
   if (!isLoggedIn) {
-    return <Redirect to={{ pathname: config.loginRoute, state: location }} />;
+    return (
+      <Redirect
+        to={{ pathname: config.loginRoute, state: { from: location } }}
+      />
+    );
   }
 
   /*
   After we have asserted that the user is not logged in, but somehow lacks privileges,
   we send it to the dashboard instead of the login to prevent the loop from happening.
   */
-  const user = authentication.currentUser as User;
-  const allowed = authorizer(user);
+  const allowed = authorizer(currentUser);
 
   if (!allowed) {
     return <Redirect to={{ pathname: config.dashboardRoute }} />;
