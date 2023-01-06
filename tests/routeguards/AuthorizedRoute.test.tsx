@@ -57,7 +57,7 @@ describe('AuthorizedRoute', () => {
           </PrivateRoute>
 
           <AuthorizedRoute<User>
-            authorizer={(user) => user.isAdmin}
+            authorizer={(user) => !!user?.isAdmin}
             path="/admin"
             exact
           >
