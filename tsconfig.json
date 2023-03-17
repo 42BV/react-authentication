@@ -19,7 +19,7 @@
     "inlineSources": true,
     "strict": true,
     "target": "es6",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
   },

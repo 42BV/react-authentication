@@ -1,8 +1,7 @@
-import React from 'react';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { AuthenticationProvider, AuthenticationContext } from '../src/provider';
+import { AuthenticationContext, AuthenticationProvider } from '../src/provider';
 import { configureAuthentication, getService } from '../src/config';
 import { AuthenticationState } from '../src/service';
 
