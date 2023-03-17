@@ -1,5 +1,5 @@
-import React from 'react';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { Component } from 'react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../src/config';
@@ -12,13 +12,13 @@ type User = {
 };
 
 describe('useCurrentUser', () => {
-  function Component() {
+  function Welcome() {
     const user = useCurrentUser<User>();
 
     return <p data-testid="header">Welcome {user.username}</p>;
   }
 
-  class ErrorBoundary extends React.Component {
+  class ErrorBoundary extends Component {
     state = {
       hasError: false,
       message: ''
@@ -53,7 +53,7 @@ describe('useCurrentUser', () => {
 
     return render(
       <ErrorBoundary>
-        <Component />
+        <Welcome />
       </ErrorBoundary>
     );
   }

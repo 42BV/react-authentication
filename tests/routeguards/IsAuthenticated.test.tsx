@@ -1,12 +1,10 @@
-import React from 'react';
-import { createMemoryHistory } from 'history';
-import { Router, Route, Switch } from 'react-router-dom';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
 
-import { PrivateRoute } from '../../src/routeguards/PrivateRoute';
+import { IsAuthenticated } from '../../src/routeguards/IsAuthenticated';
 
 function Dashboard() {
   return <h1 data-testid="header">Hello World</h1>;
@@ -18,7 +16,7 @@ function Login() {
 
 afterEach(cleanup);
 
-describe('PrivateRoute', () => {
+describe('IsAuthenticated', () => {
   function setup({ isLoggedIn }: { isLoggedIn: boolean }) {
     configureAuthentication();
 
@@ -26,19 +24,20 @@ describe('PrivateRoute', () => {
       getService().login({});
     }
 
-    const history = createMemoryHistory({ initialEntries: ['/dashboard'] });
-
     return render(
-      <Router history={history}>
-        <Switch>
-          <PrivateRoute path="/dashboard" exact>
-            <Dashboard />
-          </PrivateRoute>
-          <Route path="/login" exact>
-            <Login />
-          </Route>
-        </Switch>
-      </Router>
+      <MemoryRouter initialEntries={['/dashboard']}>
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={
+              <IsAuthenticated>
+                <Dashboard />
+              </IsAuthenticated>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </MemoryRouter>
     );
   }
 

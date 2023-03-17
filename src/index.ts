@@ -6,7 +6,7 @@ export {
 } from './service.js';
 export { authFetch, authInterceptor, getXSRFToken } from './utils.js';
 export { login, current, logout } from './actions.js';
-export { PrivateRoute } from './routeguards/PrivateRoute';
-export { AuthorizedRoute } from './routeguards/AuthorizedRoute';
+export { IsAuthenticated } from './routeguards/IsAuthenticated';
+export { IsAuthorized } from './routeguards/IsAuthorized';
 export { useAuthentication, useCurrentUser, useIsLoggedIn } from './hooks';
 export { AuthenticationContext, AuthenticationProvider } from './provider';

@@ -1,17 +1,14 @@
-import React from 'react';
-import { createMemoryHistory } from 'history';
-import { Router, Route, Switch } from 'react-router-dom';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
-import { AuthorizedRoute } from '../../src/routeguards/AuthorizedRoute';
-import { PrivateRoute } from '../../src/routeguards/PrivateRoute';
+import { IsAuthorized } from '../../src/routeguards/IsAuthorized';
+import { IsAuthenticated } from '../../src/routeguards/IsAuthenticated';
 
 function Dashboard(): JSX.Element {
   return <h1 data-testid="header">Hello logged in user</h1>;
 }
-
 function AdminArea(): JSX.Element {
   return <h1 data-testid="header">Hello logged in admin</h1>;
 }
@@ -26,7 +23,7 @@ type User = {
   isAdmin: boolean;
 };
 
-describe('AuthorizedRoute', () => {
+describe('IsAuthorized', () => {
   function setup({
     isLoggedIn,
     isAdmin,
@@ -47,27 +44,28 @@ describe('AuthorizedRoute', () => {
       getService().login({ isAdmin });
     }
 
-    const history = createMemoryHistory({ initialEntries: [route] });
-
     return render(
-      <Router history={history}>
-        <Switch>
-          <PrivateRoute path="/" exact>
-            <Dashboard />
-          </PrivateRoute>
-
-          <AuthorizedRoute<User>
-            authorizer={(user) => !!user?.isAdmin}
+      <MemoryRouter initialEntries={[route]}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <IsAuthenticated>
+                <Dashboard />
+              </IsAuthenticated>
+            }
+          />
+          <Route
             path="/admin"
-            exact
-          >
-            <AdminArea />
-          </AuthorizedRoute>
-          <Route path="/login" exact>
-            <Login />
-          </Route>
-        </Switch>
-      </Router>
+            element={
+              <IsAuthorized<User> authorizer={(user) => !!user?.isAdmin}>
+                <AdminArea />
+              </IsAuthorized>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </MemoryRouter>
     );
   }
 

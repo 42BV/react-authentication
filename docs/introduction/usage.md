@@ -158,57 +158,61 @@ export default function Logout() {
 ## Make a Route private
 
 Some routes can only be accessible when the user is logged in.
-You can do this via the PrivateRoute for example:
+You can do this via the IsAuthenticated for example:
 
 ```tsx
+import { IsAuthenticated } from "./IsAuthenticated";
+
 <BrowserRouter history={browserHistory}>
-  <div>
-    <Route exact path="/">
-      <Dashboard />
-    </Route>
-    <Route path="/login">
-      <Login />
-    </Route>
-    <PrivateRoute path="/users">
-      <Users />
-    </PrivateRoute>
-  </div>
+  <Routes>
+    <Route path="/" element={<Dashboard />} />
+    <Route path="/login" element={<Login />} />
+    <Route
+      path="/users/*"
+      element={
+        <IsAuthenticated>
+          <Users />
+        </IsAuthenticated>
+      }
+    />
+  </Routes>
 </BrowserRouter>
 ```
 
-PrivateRoute works exacly like Route, except that it does not
-support a `render` method. You must always provide a Component
-instead.
-
-When the user tries to go to a PrivateRoute he will be redirected
+When the user tries to go to a route with IsAuthenticated, he will be redirected
 to the Config's route `loginRoute`.
 
 ## Add authorization to a Route
 
 Some routes can only be accessed by a type of user or a specific
-user. You can do this via the AuthorizedRoute.
+user. You can do this via the IsAuthorized.
 
 ```tsx
+import { IsAuthorized } from "./IsAuthorized";
+
 <BrowserRouter>
-  <div>
-    <Route exact path="/">
-      <Dashboard />
-    </Route>
-    <Route path="/login">
-      <Login />
-    </Route>
-    <PrivateRoute path="/users">
-      <Users />
-    </PrivateRoute>
-    <AuthorizedRoute
-      path="/pictures"
-      authorizer={(authenticationStore: AuthenticationStore) => {
-        return authenticationStore.currentUser.role === 'ADMIN';
-      }}
-    >
-      <Pictures />
-    </AuthorizedRoute>
-  </div>
+  <Routes>
+    <Route path="/" element={<Dashboard />} />
+    <Route path="/login" element={<Login />} />
+    <Route
+      path="/users/*"
+      element={
+        <IsAuthenticated>
+          <Users />
+        </IsAuthenticated>
+      }
+    />
+    <Route
+      path="/pictures/*"
+      element={
+        <IsAuthorized
+          authorizer={(authenticationStore: AuthenticationStore) => authenticationStore.currentUser.role === 'ADMIN'}
+        >
+          <Pictures />
+        </IsAuthorized>
+      }
+    />
+  </Routes>
 </BrowserRouter>
 ```
 
@@ -216,11 +220,7 @@ The authorizer function is only ran if the user is logged in.
 The authorizer is given the authenticationStore as the first
 parameter, and is expected to return a boolean.
 
-AuthorizedRoute works exacly like Route, except that it does not
-support a `render` method. You must always provide a Component
-instead.
-
-When the user tries to go to a AuthorizedRoute he will be redirected
+When the user tries to go to a route with IsAuthorized, he will be redirected
 to the Config's route `loginRoute`.
 
 ## Get the login status

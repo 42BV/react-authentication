@@ -1,15 +1,16 @@
-import React from 'react';
-import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { ReactElement, ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useLocation } from 'react-router';
 
-import { getConfig, Config } from '../config';
+import { Config, getConfig } from '../config';
 import { useAuthentication } from '../hooks';
 
 export type Authorizer<User> = (user?: User) => boolean;
 
-export interface Props<User> extends RouteProps {
+export type Props<User> = {
   authorizer: Authorizer<User>;
-}
+  children: ReactNode;
+};
 
 /**
  * Works just like a regular Route except for when the user is
@@ -19,21 +20,24 @@ export interface Props<User> extends RouteProps {
  *
  * @example
  * ``` JavaScript
- *  <AuthorizedRoute
+ *  <Route
  *    path="/"
- *    component={ Dashboard }
- *    authorizer={({ currentUser } => currentUser !== undefined && currentUser.role === 'SUPER_USER' )}
+ *    element={
+ *      <IsAuthorized
+ *        authorizer={({ currentUser } => currentUser !== undefined && currentUser.role === 'SUPER_USER' )}
+ *      >
+ *        <Dashboard />
+ *      </IsAuthorized>
+ *    }
  *  />
  * ```
  *
- * @param props The props for the AuthorizedRoute
  * @returns Either the Component or a Redirect
  */
-export function AuthorizedRoute<User>({
+export function IsAuthorized<User>({
   authorizer,
-  children,
-  ...rest
-}: Props<User>): JSX.Element {
+  children
+}: Props<User>): ReactElement {
   const config: Config = getConfig();
   const { currentUser, isLoggedIn } = useAuthentication<User>();
   const location = useLocation();
@@ -45,8 +49,9 @@ export function AuthorizedRoute<User>({
   */
   if (!isLoggedIn) {
     return (
-      <Redirect
-        to={{ pathname: config.loginRoute, state: { from: location } }}
+      <Navigate
+        to={{ pathname: config.loginRoute }}
+        state={{ from: location }}
       />
     );
   }
@@ -58,8 +63,8 @@ export function AuthorizedRoute<User>({
   const allowed = authorizer(currentUser);
 
   if (!allowed) {
-    return <Redirect to={{ pathname: config.dashboardRoute }} />;
+    return <Navigate to={{ pathname: config.dashboardRoute }} />;
   }
 
-  return <Route {...rest}>{children}</Route>;
+  return <>{children}</>;
 }
