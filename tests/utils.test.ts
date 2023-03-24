@@ -35,6 +35,23 @@ describe('authInterceptor', () => {
 
     expect(logoutSpy).toBeCalledTimes(0);
   });
+
+  it('should not call logout when error has no response (when axios errors occur before sending request)', async () => {
+    expect.assertions(1);
+
+    const logoutSpy = jest.fn();
+    jest.spyOn(config, 'getService').mockReturnValue({
+      login: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+      getState: jest.fn(),
+      logout: logoutSpy
+    });
+
+    await authInterceptor({}).catch(() => undefined);
+
+    expect(logoutSpy).toBeCalledTimes(0);
+  });
 });
 
 describe('authFetch', () => {
