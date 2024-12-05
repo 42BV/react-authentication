@@ -1,6 +1,5 @@
 import { ReactElement, ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useLocation } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 
 import { Config, getConfig } from '../config';
 import { useAuthentication } from '../hooks';

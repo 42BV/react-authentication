@@ -1,6 +1,6 @@
-import { login, current, logout } from '../src/actions';
-import { configureAuthentication } from '../src/config';
+import { current, login, logout } from '../src/actions';
 import * as config from '../src/config';
+import { configureAuthentication } from '../src/config';
 
 describe('AuthenticationService', () => {
   function setup() {
@@ -54,7 +54,7 @@ describe('AuthenticationService', () => {
       try {
         await login({ user: 'Maarten', password: 'netraam' });
         fail();
-      } catch (response) {
+      } catch {
         expect(global.fetch).toHaveBeenCalledTimes(1);
         expect(global.fetch).toHaveBeenCalledWith(
           '/api/authentication',
@@ -104,7 +104,7 @@ describe('AuthenticationService', () => {
       try {
         await current();
         fail();
-      } catch (response) {
+      } catch {
         expect(global.fetch).toHaveBeenCalledTimes(1);
         expect(global.fetch).toHaveBeenCalledWith(
           '/api/authentication/current',

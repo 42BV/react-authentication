@@ -1,6 +1,6 @@
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import '@testing-library/jest-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../../src/config';
 

@@ -1,6 +1,6 @@
+import '@testing-library/jest-dom';
 import { Component } from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 
 import { configureAuthentication, getService } from '../src/config';
 import { useCurrentUser, useIsLoggedIn } from '../src/hooks';
