@@ -17,7 +17,13 @@ function Login() {
 afterEach(cleanup);
 
 describe('IsAuthenticated', () => {
-  function setup({ isLoggedIn }: { isLoggedIn: boolean }) {
+  function setup({
+    isLoggedIn,
+    path = '/dashboard'
+  }: {
+    isLoggedIn: boolean;
+    path?: string;
+  }) {
     configureAuthentication();
 
     if (isLoggedIn) {
@@ -25,17 +31,22 @@ describe('IsAuthenticated', () => {
     }
 
     return render(
-      <MemoryRouter initialEntries={['/dashboard']}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route
-            path="/dashboard"
-            element={
-              <IsAuthenticated>
-                <Dashboard />
-              </IsAuthenticated>
-            }
-          />
-          <Route path="/login" element={<Login />} />
+          <Route path="/">
+            <Route
+              path="dashboard"
+              element={
+                <IsAuthenticated>
+                  <Dashboard />
+                </IsAuthenticated>
+              }
+            />
+            <Route path="users" element={<IsAuthenticated />}>
+              <Route index element={<Dashboard />} />
+            </Route>
+            <Route path="login" element={<Login />} />
+          </Route>
         </Routes>
       </MemoryRouter>
     );
@@ -45,6 +56,16 @@ describe('IsAuthenticated', () => {
     expect.assertions(1);
 
     const { getByTestId } = setup({ isLoggedIn: true });
+
+    await waitFor(() => {
+      expect(getByTestId('header')).toHaveTextContent('Hello World');
+    });
+  });
+
+  test('loggedIn - subroutes', async () => {
+    expect.assertions(1);
+
+    const { getByTestId } = setup({ isLoggedIn: true, path: '/users' });
 
     await waitFor(() => {
       expect(getByTestId('header')).toHaveTextContent('Hello World');

@@ -1,12 +1,8 @@
-import { ReactElement, ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router';
+import { PropsWithChildren } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router';
 
 import { Config, getConfig } from '../config';
 import { useAuthentication } from '../hooks';
-
-type Props = {
-  children: ReactNode;
-};
 
 /**
  * Works just like a regular Route except for when the user is
@@ -27,7 +23,7 @@ type Props = {
  *
  * @returns Either the Component or a Redirect
  */
-export function IsAuthenticated({ children }: Props): ReactElement {
+export function IsAuthenticated({ children }: PropsWithChildren) {
   const config: Config = getConfig();
   const location = useLocation();
   const authentication = useAuthentication();
@@ -41,5 +37,5 @@ export function IsAuthenticated({ children }: Props): ReactElement {
     );
   }
 
-  return <>{children}</>;
+  return children ?? <Outlet />;
 }

@@ -1,5 +1,5 @@
-import { ReactElement, ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router';
+import { PropsWithChildren } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router';
 
 import { Config, getConfig } from '../config';
 import { useAuthentication } from '../hooks';
@@ -8,7 +8,6 @@ export type Authorizer<User> = (user?: User) => boolean;
 
 export type Props<User> = {
   authorizer: Authorizer<User>;
-  children: ReactNode;
 };
 
 /**
@@ -36,7 +35,7 @@ export type Props<User> = {
 export function IsAuthorized<User>({
   authorizer,
   children
-}: Props<User>): ReactElement {
+}: PropsWithChildren<Props<User>>) {
   const config: Config = getConfig();
   const { currentUser, isLoggedIn } = useAuthentication<User>();
   const location = useLocation();
@@ -65,5 +64,5 @@ export function IsAuthorized<User>({
     return <Navigate to={{ pathname: config.dashboardRoute }} />;
   }
 
-  return <>{children}</>;
+  return children ?? <Outlet />;
 }

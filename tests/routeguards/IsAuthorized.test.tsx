@@ -4,7 +4,6 @@ import { cleanup, render, waitFor } from '@testing-library/react';
 
 import { configureAuthentication, getService } from '../../src/config';
 import { IsAuthorized } from '../../src/routeguards/IsAuthorized';
-import { IsAuthenticated } from '../../src/routeguards/IsAuthenticated';
 
 function Dashboard(): JSX.Element {
   return <h1 data-testid="header">Hello logged in user</h1>;
@@ -37,7 +36,7 @@ describe('IsAuthorized', () => {
       authenticationUrl: '/api/authentication',
       currentUserUrl: '/api/authentication/current',
       loginRoute: '/login',
-      dashboardRoute: '/'
+      dashboardRoute: '/dashboard'
     });
 
     if (isLoggedIn) {
@@ -47,40 +46,48 @@ describe('IsAuthorized', () => {
     return render(
       <MemoryRouter initialEntries={[route]}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <IsAuthenticated>
-                <Dashboard />
-              </IsAuthenticated>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <IsAuthorized<User> authorizer={(user) => !!user?.isAdmin}>
-                <AdminArea />
-              </IsAuthorized>
-            }
-          />
-          <Route path="/login" element={<Login />} />
+          <Route path="/">
+            <Route
+              path="dashboard"
+              element={
+                <IsAuthorized<User> authorizer={(user) => !user?.isAdmin}>
+                  <Dashboard />
+                </IsAuthorized>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <IsAuthorized<User> authorizer={(user) => !!user?.isAdmin} />
+              }
+            >
+              <Route index element={<AdminArea />} />
+            </Route>
+            <Route path="login" element={<Login />} />
+          </Route>
         </Routes>
       </MemoryRouter>
     );
   }
 
-  test('loggedIn as admin', async () => {
-    expect.assertions(1);
-
+  test('not logged in', () => {
     const { getByTestId } = setup({
-      isLoggedIn: true,
-      isAdmin: true,
-      route: '/admin'
+      isLoggedIn: false,
+      isAdmin: false,
+      route: '/dashboard'
     });
 
-    await waitFor(() => {
-      expect(getByTestId('header')).toHaveTextContent('Hello logged in admin');
+    expect(getByTestId('header')).toHaveTextContent('Please log in');
+  });
+
+  test('not logged in but somehow admin', () => {
+    const { getByTestId } = setup({
+      isLoggedIn: false,
+      isAdmin: true,
+      route: '/dashboard'
     });
+
+    expect(getByTestId('header')).toHaveTextContent('Please log in');
   });
 
   test('loggedIn as non admin', async () => {
@@ -89,7 +96,7 @@ describe('IsAuthorized', () => {
     const { getByTestId } = setup({
       isLoggedIn: true,
       isAdmin: false,
-      route: '/admin'
+      route: '/users'
     });
     const route = getByTestId('header');
 
@@ -98,23 +105,31 @@ describe('IsAuthorized', () => {
     });
   });
 
-  test('not logged in but somehow admin', () => {
+  test('loggedIn as admin', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({
-      isLoggedIn: false,
+      isLoggedIn: true,
       isAdmin: true,
-      route: '/admin'
+      route: '/users'
     });
 
-    expect(getByTestId('header')).toHaveTextContent('Please log in');
+    await waitFor(() => {
+      expect(getByTestId('header')).toHaveTextContent('Hello logged in admin');
+    });
   });
 
-  test('not logged in', () => {
+  test('loggedIn as admin - subroutes', async () => {
+    expect.assertions(1);
+
     const { getByTestId } = setup({
-      isLoggedIn: false,
-      isAdmin: false,
-      route: '/admin'
+      isLoggedIn: true,
+      isAdmin: true,
+      route: '/users'
     });
 
-    expect(getByTestId('header')).toHaveTextContent('Please log in');
+    await waitFor(() => {
+      expect(getByTestId('header')).toHaveTextContent('Hello logged in admin');
+    });
   });
 });
