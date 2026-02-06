@@ -1,15 +1,21 @@
+import { vi } from 'vitest';
 import { current, login, logout } from '../src/actions';
 import * as config from '../src/config';
 import { configureAuthentication } from '../src/config';
 
 describe('AuthenticationService', () => {
   function setup() {
-    const loginSpy = jest.fn();
-    const logoutSpy = jest.fn();
+    const loginSpy = vi.fn();
+    const logoutSpy = vi.fn();
 
     // Mock the action creators
-    // @ts-expect-error test mock
-    config.getService = jest.fn(() => ({ logout: logoutSpy, login: loginSpy }));
+    vi.spyOn(config, 'getService').mockReturnValue({
+      logout: logoutSpy,
+      login: loginSpy,
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      getState: vi.fn()
+    });
 
     configureAuthentication();
 
@@ -22,7 +28,7 @@ describe('AuthenticationService', () => {
 
       const { loginSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         json: () => Promise.resolve({ fake: 'user' })
       });
@@ -47,13 +53,13 @@ describe('AuthenticationService', () => {
 
       const { loginSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 500
       });
 
       try {
         await login({ user: 'Maarten', password: 'netraam' });
-        fail();
+        throw new Error('should not reach');
       } catch {
         expect(global.fetch).toHaveBeenCalledTimes(1);
         expect(global.fetch).toHaveBeenCalledWith(
@@ -74,7 +80,7 @@ describe('AuthenticationService', () => {
 
       const { loginSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         json: () => Promise.resolve({ fake: 'current' })
       });
@@ -97,13 +103,13 @@ describe('AuthenticationService', () => {
 
       const { loginSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 500
       });
 
       try {
         await current();
-        fail();
+        throw new Error('should not reach');
       } catch {
         expect(global.fetch).toHaveBeenCalledTimes(1);
         expect(global.fetch).toHaveBeenCalledWith(
@@ -123,7 +129,7 @@ describe('AuthenticationService', () => {
 
       const { logoutSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200
       });
 
@@ -144,13 +150,13 @@ describe('AuthenticationService', () => {
 
       const { logoutSpy } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 500
       });
 
       try {
         await logout();
-        fail();
+        throw new Error('should not reach');
       } catch (e: unknown) {
         const response = e as Response;
         expect(response.status).toBe(500);

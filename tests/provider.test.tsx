@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
 import { AuthenticationContext, AuthenticationProvider } from '../src/provider';

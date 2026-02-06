@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 import { Component } from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
@@ -49,7 +49,7 @@ describe('useCurrentUser', () => {
       getService().login({ username: 'John' });
     }
 
-    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     return render(
       <ErrorBoundary>

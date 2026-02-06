@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { authFetch, authInterceptor } from '../src/utils';
 import * as config from '../src/config';
 
@@ -5,12 +6,12 @@ describe('authInterceptor', () => {
   it('should call logout when status is 401', async () => {
     expect.assertions(1);
 
-    const logoutSpy = jest.fn();
-    jest.spyOn(config, 'getService').mockReturnValue({
-      login: jest.fn(),
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn(),
-      getState: jest.fn(),
+    const logoutSpy = vi.fn();
+    vi.spyOn(config, 'getService').mockReturnValue({
+      login: vi.fn(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      getState: vi.fn(),
       logout: logoutSpy
     });
 
@@ -22,12 +23,12 @@ describe('authInterceptor', () => {
   it('should not call logout when status is 500', async () => {
     expect.assertions(1);
 
-    const logoutSpy = jest.fn();
-    jest.spyOn(config, 'getService').mockReturnValue({
-      login: jest.fn(),
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn(),
-      getState: jest.fn(),
+    const logoutSpy = vi.fn();
+    vi.spyOn(config, 'getService').mockReturnValue({
+      login: vi.fn(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      getState: vi.fn(),
       logout: logoutSpy
     });
 
@@ -39,12 +40,12 @@ describe('authInterceptor', () => {
   it('should not call logout when error has no response (when axios errors occur before sending request)', async () => {
     expect.assertions(1);
 
-    const logoutSpy = jest.fn();
-    jest.spyOn(config, 'getService').mockReturnValue({
-      login: jest.fn(),
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn(),
-      getState: jest.fn(),
+    const logoutSpy = vi.fn();
+    vi.spyOn(config, 'getService').mockReturnValue({
+      login: vi.fn(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      getState: vi.fn(),
       logout: logoutSpy
     });
 
@@ -56,10 +57,15 @@ describe('authInterceptor', () => {
 
 describe('authFetch', () => {
   function setup() {
-    const logout = jest.fn();
+    const logout = vi.fn();
 
-    // @ts-expect-error test mock
-    config.getService = jest.fn(() => ({ logout }));
+    vi.spyOn(config, 'getService').mockReturnValue({
+      login: vi.fn(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+      getState: vi.fn(),
+      logout
+    });
 
     document.cookie = 'XSRF-TOKEN=d3add0g';
 
@@ -71,7 +77,7 @@ describe('authFetch', () => {
 
     const { logout } = setup();
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       status: 200,
       json: () => Promise.resolve({ fake: 'fake' })
     });
@@ -99,7 +105,7 @@ describe('authFetch', () => {
 
       const { logout } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         json: () => Promise.resolve({ fake: 'fake' })
       });
@@ -125,7 +131,7 @@ describe('authFetch', () => {
 
       const { logout } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         json: () => Promise.resolve({ fake: 'fake' })
       });
@@ -154,7 +160,7 @@ describe('authFetch', () => {
 
       const { logout } = setup();
 
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         json: () => Promise.resolve({ fake: 'fake' })
       });
@@ -186,7 +192,7 @@ describe('authFetch', () => {
 
     const { logout } = setup();
 
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       status: 401,
       json: () => Promise.resolve({ fake: 'fake' })
     });

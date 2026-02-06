@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import jest from 'eslint-plugin-jest';
+import vitest from 'eslint-plugin-vitest';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 export default tseslint.config(
@@ -27,12 +27,9 @@ export default tseslint.config(
   },
   {
     files: ['tests/**/*.{ts,tsx}'],
-    plugins: { jest },
+    plugins: { vitest },
     rules: {
-      'jest/prefer-expect-assertions': [
-        'error',
-        { onlyFunctionsWithAsyncKeyword: true }
-      ]
+      'vitest/expect-expect': 'off'
     }
   },
   eslintConfigPrettier

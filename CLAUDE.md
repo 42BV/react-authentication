@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Full test suite (lint + typecheck + coverage):** `npm test`
 - **Run tests in watch mode:** `npm start`
-- **Run only Jest tests with coverage:** `npm run test:coverage`
-- **Run a single test file:** `npx jest tests/actions.test.ts`
+- **Run only Vitest tests with coverage:** `npm run test:coverage`
+- **Run a single test file:** `npx vitest run tests/actions.test.ts`
 - **Type-check only:** `npm run test:ts`
 - **Lint:** `npm run lint`
 - **Build (compile to lib/):** `npm run tsc`
@@ -38,14 +38,15 @@ The library uses a **singleton service pattern** — no Redux or external state 
 ## Testing Patterns
 
 - Tests live in `tests/` mirroring `src/` structure
-- Jest with jsdom environment, ts-jest transform
-- Tests mock `global.fetch` directly and mock `getService` via `config` module reassignment (`config.getService = jest.fn(...)`)
-- Async tests use `expect.assertions(n)` (enforced by ESLint rule `jest/prefer-expect-assertions` for async functions)
+- Vitest with jsdom environment, globals enabled (`vitest.config.ts`)
+- Tests mock `global.fetch` directly and mock `getService` via `vi.spyOn(config, 'getService')`
+- Async tests use `expect.assertions(n)` by convention
 - Component tests use `@testing-library/react` with `MemoryRouter` from react-router
+- `@testing-library/jest-dom/vitest` matchers loaded via `setupTests.ts`
 
 ## Code Style
 
 - Prettier: single quotes, no trailing commas, double quotes in JSX
-- ESLint: TypeScript strict, react-hooks plugin, jest plugin
+- ESLint: TypeScript strict, react-hooks plugin, vitest plugin
 - Husky pre-commit hook runs lint-staged (prettier on `{src,tests}/**`)
 - TypeScript strict mode with `noUnusedLocals`, `noImplicitReturns`

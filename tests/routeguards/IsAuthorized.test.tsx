@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
