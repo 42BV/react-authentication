@@ -29,7 +29,7 @@ export function useAuthentication<User>(): AuthenticationState<User> {
     return () => {
       service.unsubscribe(subscriber);
     };
-  }, []);
+  }, [service]);
 
   return state;
 }
