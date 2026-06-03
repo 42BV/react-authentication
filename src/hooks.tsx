@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { getService } from './config';
-import { AuthenticationState } from './service';
+import { getService } from './config.js';
+import { AuthenticationState } from './service.js';
 
 /**
  * Returns the authentication state it it exists. Otherwise returns

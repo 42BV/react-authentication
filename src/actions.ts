@@ -1,5 +1,5 @@
-import { authFetch } from './utils';
-import { getConfig, getService } from './config';
+import { authFetch } from './utils.js';
+import { getConfig, getService } from './config.js';
 
 // Throw error when not 200 otherwise parse response.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

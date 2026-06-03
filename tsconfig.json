@@ -4,29 +4,28 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
-    "downlevelIteration": true,
     "lib": [
       "dom",
-      "es6",
-      "es2015.promise",
-      "scripthost"
+      "dom.iterable",
+      "es2022"
     ],
-    "module": "commonjs",
-    "moduleResolution": "Node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "./lib",
+    "rootDir": "./src",
     "removeComments": true,
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
-    "target": "es6",
+    "target": "es2022",
     "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "verbatimModuleSyntax": false
   },
   "files": [
     "src/index.ts"
   ],
   "exclude": [
-    "node_modules",
+    "node_modules"
   ]
 }

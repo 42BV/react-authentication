@@ -1,4 +1,4 @@
-import { makeAuthenticationService, AuthenticationService } from './service';
+import { makeAuthenticationService, AuthenticationService } from './service.js';
 
 export type Config = {
   // The URL to POST login request and DELETE logout request.

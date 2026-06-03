@@ -1,8 +1,8 @@
 import { PropsWithChildren } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
-import { Config, getConfig } from '../config';
-import { useAuthentication } from '../hooks';
+import { Config, getConfig } from '../config.js';
+import { useAuthentication } from '../hooks.js';
 
 export type Authorizer<User> = (user?: User) => boolean;
 

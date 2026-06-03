@@ -1,4 +1,4 @@
-import { getService } from './config';
+import { getService } from './config.js';
 
 // Get the XSRF token from the cookies.
 export function getXSRFToken(): string {
