@@ -50,14 +50,23 @@ export async function login(body: Record<string, unknown>): Promise<void> {
  * The URL it will send the request to is defined by the 'currentUserUrl'
  * from the Config object.
  *
- * An example of the response:
+ * The back-end is expected to always respond with 200 OK and a JSON body
+ * containing an `authenticated` discriminator. When the user is logged in,
+ * the entire body (including any user fields) is written to the
+ * AuthenticationService as the currentUser. When the user is not logged in,
+ * the service is set to logged-out state.
+ *
+ * An example of a logged-in response:
  *
  * ```JSON
- * { "id": 1, "name": "sjonnyb", "roles": ["ADMIN"] }
+ * { "authenticated": true, "id": 1, "name": "sjonnyb", "roles": ["ADMIN"] }
  * ```
  *
- * The entire response will be written to the Redux AuthenticationService's
- * Whatever the JSON response is will be the currentUser.
+ * An example of an anonymous response:
+ *
+ * ```JSON
+ * { "authenticated": false }
+ * ```
  *
  * @returns { Promise } An empty promise.
  */
@@ -71,8 +80,15 @@ export async function current(): Promise<void> {
     },
     method: 'get'
   });
-  const user = await tryParse(response);
-  service.login(user);
+  if (response.status !== 200) {
+    throw response;
+  }
+  const body = await response.json();
+  if (body?.authenticated) {
+    service.login(body);
+  } else {
+    service.logout();
+  }
 }
 
 /**

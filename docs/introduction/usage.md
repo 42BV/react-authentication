@@ -46,7 +46,10 @@ export class Login extends Component<Props, State> {
     autoLoginFailed: false
   };
 
-  // Calling `current()` automatically logs the user in when the session is still valid
+  // Calling `current()` automatically logs the user in when the session is still valid.
+  // `current()` always resolves on a successful (200) backend response: if the user is
+  // logged in, the service is populated; if not, the service is set to logged-out.
+  // It only rejects on transport or server errors (e.g. 5xx).
   componentDidMount() {
     current().catch(() => {
       this.setState({ autoLoginFailed: true });
