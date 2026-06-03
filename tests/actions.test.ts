@@ -75,14 +75,14 @@ describe('AuthenticationService', () => {
   });
 
   describe('current', () => {
-    test('200', async () => {
-      expect.assertions(4);
+    test('200 authenticated', async () => {
+      expect.assertions(5);
 
-      const { loginSpy } = setup();
+      const { loginSpy, logoutSpy } = setup();
 
       global.fetch = vi.fn().mockResolvedValue({
         status: 200,
-        json: () => Promise.resolve({ fake: 'current' })
+        json: () => Promise.resolve({ authenticated: true, fake: 'current' })
       });
 
       await current();
@@ -95,7 +95,34 @@ describe('AuthenticationService', () => {
         })
       );
       expect(loginSpy).toHaveBeenCalledTimes(1);
-      expect(loginSpy).toHaveBeenCalledWith({ fake: 'current' });
+      expect(loginSpy).toHaveBeenCalledWith({
+        authenticated: true,
+        fake: 'current'
+      });
+      expect(logoutSpy).toHaveBeenCalledTimes(0);
+    });
+
+    test('200 anonymous', async () => {
+      expect.assertions(4);
+
+      const { loginSpy, logoutSpy } = setup();
+
+      global.fetch = vi.fn().mockResolvedValue({
+        status: 200,
+        json: () => Promise.resolve({ authenticated: false })
+      });
+
+      await current();
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/authentication/current',
+        expect.objectContaining({
+          method: 'get'
+        })
+      );
+      expect(loginSpy).toHaveBeenCalledTimes(0);
+      expect(logoutSpy).toHaveBeenCalledTimes(1);
     });
 
     test('500', async () => {
